@@ -100,8 +100,8 @@
   /* Tab bar */
   nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
            border-top:1px solid var(--n200);padding-bottom:env(safe-area-inset-bottom)}
-  nav.tabs .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tab)}
-  nav.tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;line-height:16px;font-weight:500;color:var(--n500)}
+  nav.tabs .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);height:var(--tab)}
+  nav.tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;line-height:16px;font-weight:500;color:var(--n500)}
   nav.tabs button .gl{font-size:22px;line-height:24px;filter:grayscale(1);opacity:.7}
   nav.tabs button[aria-current=page]{color:var(--accent)}
   nav.tabs button[aria-current=page] .gl{filter:none;opacity:1}
@@ -191,6 +191,13 @@
       <div class="only-boss"><p class="muted">CA semaine dernière</p><p class="mid">17,9 k€</p><p class="muted">ticket moyen 21,70 €</p></div>
       <div class="only-staff"><p class="muted">Samedi dernier midi</p><p class="mid">71 cvts</p><p class="muted">pluie</p></div>
     </div>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Mes tâches</p><span class="muted" id="myCount"></span></div>
+    <p class="muted" style="margin-top:4px">Les tiennes, plus celles que l'outil t'ajoute tout seul.</p>
+    <div class="list" id="my"></div>
+    <div class="row-btns" style="grid-template-columns:1fr"><button class="btn sec" id="myAdd">🎙️ Ajouter à la voix</button></div>
   </div>
 
   <div class="card">
@@ -442,7 +449,67 @@
       <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">Intégration Inès</p><p class="t2">Jour 2 / 5 · SOP service</p><div class="bar"><i style="width:40%"></i></div></div></div>
     </div>
   </div>
-  <footer>v3.1 · prototype · aucune donnée réelle</footer>
+</section>
+<!-- ================= CLIENTS ================= -->
+<section class="view" id="v-clients" aria-label="Clients">
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Événement suggéré</p><span class="pill info">dans 108 j</span></div>
+    <p class="mid" style="margin-top:8px">🥞 Chandeleur · lundi 2 février</p>
+    <p class="muted">Habituellement fermé le lundi. L'an dernier (un dimanche), +62 % de couverts sur la semaine.</p>
+    <div class="field"><label for="evCost">Coût de l'événement : <b id="evCostV"></b></label><input type="range" id="evCost" min="100" max="1500" step="50" value="300" style="padding:0;border:0;accent-color:var(--accent)"></div>
+    <p class="muted" style="margin-top:4px">Personnel en plus, déco, animation, com.</p>
+    <div class="field"><label for="evCv">Couverts attendus en plus : <b id="evCvV"></b></label><input type="range" id="evCv" min="0" max="120" step="5" value="45" style="padding:0;border:0;accent-color:var(--accent)"></div>
+    <div class="bubble" id="evRes"></div>
+    <div class="row-btns"><button class="btn sec">Autre date</button><button class="btn pri" id="evGo">Planifier</button></div>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Bilan · dernier événement</p><span class="pill ok">rentable</span></div>
+    <p class="t1" style="margin-top:8px;font-weight:500">🎸 Fête de la musique · samedi 21 juin</p>
+    <div class="grid2">
+      <div><p class="muted">CA de la soirée</p><p class="mid">4 860 €</p><p class="muted">un samedi soir normal : 3 120 €</p></div>
+      <div><p class="muted">Gain net</p><p class="mid pos">+1 190 €</p><p class="muted">après 550 € de coûts</p></div>
+    </div>
+    <p class="muted" style="margin-top:12px">Comparé à la moyenne des 8 samedis soirs de juin et juillet, à météo équivalente.</p>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Plan de com · cette semaine</p><span class="muted">rédigé par l'IA</span></div>
+    <div class="list" id="comPosts"></div>
+    <p class="muted" style="margin-top:8px">Les posts partent à l'heure prévue, sauf si tu les modifies ou les annules avant.</p>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Relance des clients inactifs</p><span class="pill warn">214</span></div>
+    <p class="muted" style="margin-top:4px">Pas revenus depuis 60 jours. <b style="color:var(--n950)">148</b> ont accepté de recevoir des messages (RGPD).</p>
+    <div class="chips" id="relMode" role="group" aria-label="Type de relance">
+      <button aria-pressed="true" data-m="jeu">🎲 Jeu concours</button><button aria-pressed="false" data-m="offre">🎁 Offre</button>
+    </div>
+    <div class="bubble" id="relMsg"></div>
+    <button class="btn pri full" style="margin-top:16px" id="relGo">Envoyer à 148 clients</button>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Ambiance musicale</p><span class="pill ok">auto</span></div>
+    <p class="mid" style="margin-top:8px" id="ambName"></p>
+    <p class="muted" id="ambWhy"></p>
+    <div class="field"><label for="amb">Affluence en direct : <b id="ambV"></b></label><input type="range" id="amb" min="0" max="100" value="82" style="padding:0;border:0;accent-color:var(--accent)"></div>
+    <div class="list">
+      <div class="item"><div class="ic">☕</div><div class="tx"><p class="t1">Lundi midi, service calme</p><p class="t2">Acoustique, folk · volume bas</p></div></div>
+      <div class="item"><div class="ic">🔥</div><div class="tx"><p class="t1">Samedi en plein rush</p><p class="t2">Pop rock, celtique moderne · volume moyen</p></div></div>
+      <div class="item"><div class="ic">🌙</div><div class="tx"><p class="t1">Fin de soirée</p><p class="t2">Jazz, soul · on redescend</p></div></div>
+    </div>
+    <p class="muted" style="margin-top:8px">Tes règles, ajustées selon l'affluence réelle de la caisse. Diffusion via un service licencié pour les lieux publics (SACEM).</p>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Avis clients</p><span class="pill info">2</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">⭐</div><div class="tx"><p class="t1">★★★★★ « Galettes au top, accueil adorable »</p><p class="t2">Réponse proposée : « Merci Sophie ! Inès sera ravie… »</p></div><div class="rt"><button class="btn sec" data-ok-av>Valider</button></div></div>
+      <div class="item"><div class="ic">⭐</div><div class="tx"><p class="t1">★★★ « Attente longue samedi midi »</p><p class="t2">Réponse proposée, à personnaliser</p></div><div class="rt"><button class="btn sec" data-ok-av>Relire</button></div></div>
+    </div>
+  </div>
+  <footer>v4 · prototype · aucune donnée réelle</footer>
 </section>
 </main>
 
@@ -455,6 +522,7 @@
     <button data-tab="kitchen"><span class="gl">🍳</span>Cuisine</button>
     <button data-tab="buy"><span class="gl">🛒</span>Achats</button>
     <button data-tab="team"><span class="gl">👥</span>Équipe</button>
+    <button data-tab="clients"><span class="gl">💬</span>Clients</button>
   </div>
 </nav>
 
@@ -590,6 +658,64 @@ $('#merc').innerHTML = `<div class="list">${MERC.map(m=>`<div class="item"><div 
   <p class="t2">dernier facturé <b>${m[2]} ${m[1]}</b> · négocié ${m[4]} · meilleur vu ${m[3]}</p></div>
   <div class="rt"><span class="pill ${m[5]}">${m[6]}</span></div></div>`).join('')}</div>
   <p class="muted" style="margin-top:8px">Mise à jour automatique à chaque facture. Un prix facturé au-dessus du prix négocié déclenche une demande d'avoir.</p>`;
+
+/* ---------- Mes tâches (gestionnaire du gérant) ---------- */
+const MY=[
+  ['Répondre à Pomona : avoir de 41,90 €','auto · réception de ce matin','info','09:00'],
+  ['Rappeler le comptable STECO : TVA','toi · mardi','n','10:30'],
+  ['RDV commercial Transgourmet','agenda · 15:30','n','15:30'],
+  ['Planifier la formation SST de Julie','auto · habilitation expirée','warn',''],
+  ['Valider 2 réponses aux avis Google','auto · avis','info',''],
+  ['3 mails fournisseurs non lus','boîte mail','n',''],
+];
+const myDone=new Set();
+function renderMy(){
+  $('#myCount').textContent = (MY.length-myDone.size) + ' à faire';
+  $('#my').innerHTML = MY.map((t,i)=>`<div class="item"><button class="chk ${myDone.has(i)?'on':''}" data-m="${i}" aria-label="Fait">${myDone.has(i)?'✓':''}</button>
+    <div class="tx"><p class="t1 ${myDone.has(i)?'struck':''}">${t[0]}</p><p class="t2"><span class="pill ${t[2]}">${t[1]}</span></p></div>
+    <div class="rt muted">${t[3]}</div></div>`).join('');
+}
+$('#my').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; const i=+b.dataset.m; myDone.has(i)?myDone.delete(i):myDone.add(i); renderMy(); });
+$('#myAdd').addEventListener('click',()=>{ MY.splice(2,0,['Commander les nappes pour la Chandeleur','toi · à la voix','n','']); renderMy(); toast('« Commander les nappes pour la Chandeleur » ajouté'); });
+renderMy();
+
+/* ---------- Événement : rentabilité ---------- */
+const MARGE_CV = 21.70*(1-0.308);  // marge brute par couvert
+function ev(){
+  const c=+$('#evCost').value, n=+$('#evCv').value;
+  $('#evCostV').textContent = c.toLocaleString('fr-FR')+' €'; $('#evCvV').textContent = n;
+  const need=Math.ceil(c/MARGE_CV), gain=Math.round(n*MARGE_CV-c);
+  $('#evRes').innerHTML = `Seuil de rentabilité : <b>${need} couverts en plus</b> (marge de ${MARGE_CV.toFixed(2).replace('.',',')} € par couvert). `
+    + (gain>=0 ? `Avec ${n} couverts : <b class="pos">+${gain.toLocaleString('fr-FR')} €</b>. ✅ Rentable.` : `Avec ${n} couverts : <b class="neg">${gain.toLocaleString('fr-FR')} €</b>. ⚠️ Pas rentable en l'état.`);
+}
+['evCost','evCv'].forEach(id=>$('#'+id).addEventListener('input',ev)); ev();
+$('#evGo').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Planifié ✓'; toast('Chandeleur planifiée : posts, planning et commandes préparés'); });
+
+/* ---------- Plan de com ---------- */
+const POSTS=[['Sam. 11:00','📸 Instagram + Facebook','« Soleil + terrasse = galette complète ☀️ »','planifié'],['Mar. 18:00','📸 Instagram','Crêpe de la semaine : pomme caramel beurre salé','planifié'],['Jeu. 12:00','📍 Google','Horaires des vacances de la Toussaint','planifié']];
+function renderPosts(){
+  $('#comPosts').innerHTML = POSTS.map((p,i)=>`<div class="item"><div class="ic" style="font-size:12px;font-weight:600;text-align:center;line-height:14px">${p[0].replace(' ','<br>')}</div>
+    <div class="tx"><p class="t1">${p[2]}</p><p class="t2">${p[1]}</p></div>
+    <div class="rt">${p[3]==='annulé'?'<span class="pill n">annulé</span>':`<button class="link" data-pc="${i}">annuler</button>`}</div></div>`).join('');
+}
+$('#comPosts').addEventListener('click',e=>{ const b=e.target.closest('[data-pc]'); if(!b) return; POSTS[+b.dataset.pc][3]='annulé'; renderPosts(); toast('Post annulé'); });
+renderPosts();
+
+/* ---------- Relance ---------- */
+const REL={jeu:'« On ne vous a pas vus depuis un moment ! Tentez de gagner un dîner pour 4 : venez avant le 15 novembre, chaque passage = 1 participation. »<br><span class="muted">Le règlement du jeu est généré et archivé.</span>',
+           offre:'« Votre crêpe dessert offerte pour votre prochaine visite avant le 15 novembre. »'};
+$('#relMode').addEventListener('click',e=>{ const b=e.target.closest('[data-m]'); if(!b) return; $$('#relMode button').forEach(x=>x.setAttribute('aria-pressed',x===b)); $('#relMsg').innerHTML=REL[b.dataset.m]; });
+$('#relMsg').innerHTML=REL.jeu;
+$('#relGo').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Envoyé ✓ · retours mesurés dans 30 j'; toast('148 SMS envoyés · retours suivis dans le fichier client'); });
+
+/* ---------- Ambiance ---------- */
+function amb(){
+  const v=+$('#amb').value; $('#ambV').textContent=v+' %';
+  const [n,w] = v>70?['🔥 Rush · énergique','Pop rock, celtique moderne · 118 BPM']:v>35?['🎶 Service · détendu','Indie, folk · 100 BPM']:['☕ Calme · acoustique','Acoustique, jazz · 85 BPM'];
+  $('#ambName').textContent=n; $('#ambWhy').textContent=w+' · 64 couverts en salle';
+}
+$('#amb').addEventListener('input',amb); amb();
+$$('[data-ok-av]').forEach(b=>b.addEventListener('click',()=>{ b.disabled=true; b.textContent='Publié ✓'; }));
 
 /* ---------- Semaine ---------- */
 const WEEK=[['sam','☀️',112,'r'],['dim','—',0],['lun','—',0],['mar','⛅',38],['mer','🌧️',41],['jeu','⛅',52],['ven','☀️',94]];
