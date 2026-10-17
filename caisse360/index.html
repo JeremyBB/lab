@@ -372,7 +372,7 @@
       <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">Intégration Inès</p><p class="t2">Jour 2 / 5 · SOP service</p><div class="bar"><i style="width:40%"></i></div></div></div>
     </div>
   </div>
-  <footer>v1 · prototype · aucune donnée réelle</footer>
+  <footer>v2 · prototype · aucune donnée réelle</footer>
 </section>
 </main>
 
@@ -511,7 +511,7 @@ const ACTIONS = `<h3>Que veux-tu faire ?</h3>
     <button data-q="perte"><span>🗑️</span>Perte</button>
     <button data-q="etiq"><span>🏷️</span>Étiquette DLC</button>
     <button data-q="pointer"><span>⏱️</span>Pointer</button>
-    <button data-q="pay"><span>💳</span>Encaisser</button>
+    <button data-q="inv"><span>📋</span>Inventaire</button>
     <button data-q="voice"><span>🎙️</span>Demander</button>
   </div>`;
 $('#fab').addEventListener('click',()=>{ openSheet(ACTIONS); bindQA(); });
@@ -536,10 +536,16 @@ function quick(q){
     $('#eOk').addEventListener('click',()=>{ closeSheet(); toast('Étiquette imprimée · registre de production mis à jour'); });
   } else if(q==='pointer'){
     closeSheet(); toast('Pointage 11:28 enregistré · QR du restaurant reconnu');
-  } else if(q==='pay'){
-    openSheet(`<h3>Encaisser</h3><p class="muted">Table 12 · terrasse 2</p><p class="big" style="margin-top:16px;text-align:center">47,50 €</p>
-      <div class="chips" style="justify-content:center">${['Sans pourboire','+5 %','+10 %'].map((m,i)=>`<button aria-pressed="${i===0}">${m}</button>`).join('')}</div>
-      <div class="mic" style="font-size:30px" aria-hidden="true">💳</div><p class="muted" style="text-align:center">Approche la carte ou le téléphone · CB et titres-restaurant</p>`);
+  } else if(q==='inv'){
+    openSheet(`<h3>Inventaire tournant</h3><p class="muted">Les 20 produits les plus chers, une fois par mois. Scanne ou saisis la quantité restante.</p>
+      <div class="list">
+        <div class="item"><div class="tx"><p class="t1">Beurre demi-sel</p><p class="t2">théorique 6,5 kg</p></div><div class="rt"><p class="v">5,0 kg</p><span class="pill warn">−1,5</span></div></div>
+        <div class="item"><div class="tx"><p class="t1">Andouille de Guémené</p><p class="t2">théorique 1,4 kg</p></div><div class="rt"><p class="v">1,4 kg</p><span class="pill ok">OK</span></div></div>
+        <div class="item"><div class="tx"><p class="t1">Crème fraîche</p><p class="t2">théorique 8 L</p></div><div class="rt"><button class="btn sec">📷 Scanner</button></div></div>
+      </div>
+      <p class="muted" style="margin-top:12px">3 / 20 comptés · environ 8 min restantes</p>
+      <button class="btn pri full" style="margin-top:16px" id="iOk">Enregistrer</button>`);
+    $('#iOk').addEventListener('click',()=>{ closeSheet(); toast('Inventaire partiel enregistré · coût matière recalé'); });
   } else if(q==='voice'){
     openSheet(`<h3>Demander</h3><button class="mic" aria-label="Parler">🎙️</button><p class="muted" style="text-align:center">Appuie et parle</p>
       <div class="bubble me">« Combien j'ai fait hier, et je commande combien de cidre pour la semaine ? »</div>
