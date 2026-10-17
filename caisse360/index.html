@@ -267,6 +267,20 @@
   </div>
 
   <div class="card only-boss">
+    <div class="h2row"><p class="h2">Énergie</p><span class="muted">Linky · sous-compteurs</span></div>
+    <div class="grid2">
+      <div><p class="muted">Ce mois</p><p class="mid">1 140 €</p><p class="muted"><span class="neg">+11 %</span> vs N-1</p></div>
+      <div><p class="muted">Par couvert</p><p class="mid">0,63 €</p><p class="muted">inclus dans tes coûts de revient</p></div>
+    </div>
+    <div class="list">
+      <div class="item"><div class="ic">🌙</div><div class="tx"><p class="t1">Hotte allumée hors service</p><p class="t2">3 nuits cette semaine · ~45 € / mois</p></div><div class="rt"><button class="btn sec" id="hotteBtn">Programmer</button></div></div>
+      <div class="item"><div class="ic">⚡</div><div class="tx"><p class="t1">Pic max : 31 kVA (samedi 12:40)</p><p class="t2">Puissance souscrite 42 kVA · passer à 36 kVA : ~220 € / an</p></div></div>
+      <div class="item"><div class="ic">🧊</div><div class="tx"><p class="t1">Chambre froide : +18 % de conso</p><p class="t2">Corrélé aux alertes de température · joint de porte ?</p></div><div class="rt"><span class="pill warn">à vérifier</span></div></div>
+    </div>
+    <div class="bubble">Crêpe complète : coût matière 2,10 € + énergie <b>0,14 €</b> (billig 4 min) = <b>2,24 €</b> · marge après énergie 74 %</div>
+  </div>
+
+  <div class="card only-boss">
     <p class="h2">Temps qui ne rapporte pas</p>
     <p class="mid" style="margin-top:8px">6 h 40 <span class="muted" style="font-weight:400">/ semaine</span></p>
     <p class="muted">avant la caisse 360 : 14 h 10 · <span class="pos">−53 %</span></p>
@@ -428,7 +442,7 @@
       <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">Intégration Inès</p><p class="t2">Jour 2 / 5 · SOP service</p><div class="bar"><i style="width:40%"></i></div></div></div>
     </div>
   </div>
-  <footer>v3 · prototype · aucune donnée réelle</footer>
+  <footer>v3.1 · prototype · aucune donnée réelle</footer>
 </section>
 </main>
 
@@ -613,6 +627,7 @@ $('#tips').innerHTML = `<div class="list">${TIPS.map(t=>`<div class="item"><div 
 /* ---------- Boutons simples ---------- */
 $('#avoirBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Demande envoyée à Pomona ✓'; $('#recBadge').className='pill info'; $('#recBadge').textContent='avoir demandé'; toast('Demande d\'avoir envoyée · suivi automatique'); });
 $('#orderBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Envoyée ✓'; toast('3 commandes envoyées (2 mails, 1 SMS)'); });
+$('#hotteBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Programmé ✓'; toast('Hotte : extinction auto 30 min après le dernier ticket · tu valides chaque soir'); });
 $('#negoBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Envoyé ✓'; toast('Mail envoyé · relance auto dans 3 jours sans réponse'); });
 
 /* ---------- Sheet ---------- */
