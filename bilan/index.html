@@ -104,6 +104,21 @@
   .src { display:flex; gap:12px; align-items:flex-start; margin-top:16px; }
   .src .dot { flex:none; width:8px; height:8px; border-radius:9999px; margin-top:8px; }
   .src .t { font-weight:500; }
+  .calc { margin-top:16px; display:grid; gap:12px; }
+  .calc .ln { display:grid; grid-template-columns:auto 1fr auto; gap:4px 12px; align-items:baseline; }
+  .calc .op { width:16px; font-weight:600; color:var(--n500); }
+  .calc .nm { font-weight:500; }
+  .calc .am { font-weight:600; color:var(--n950); text-align:right; }
+  .calc .sr { grid-column:2 / 4; display:flex; align-items:center; gap:8px; font-size:14px; line-height:20px; color:var(--n500); }
+  .tag { flex:none; padding:0 8px; border-radius:9999px; font-size:12px; line-height:20px; font-weight:500; }
+  .tag.auto { background:var(--success-subtle); color:var(--success); }
+  .tag.est { background:var(--warning-subtle); color:var(--warning); }
+  .tag.once { background:var(--accent-subtle); color:var(--accent); }
+  .calc .tot { padding-top:12px; border-top:1px solid var(--n200); }
+  .calc .tot .nm, .calc .tot .am { font-size:20px; line-height:28px; font-weight:600; }
+  .excl { display:grid; gap:12px; }
+  .excl p { font-size:14px; line-height:20px; color:var(--n700); }
+  .excl strong { color:var(--n950); font-weight:600; }
   footer { text-align:center; color:var(--n500); font-size:12px; line-height:16px; }
 </style>
 </head>
@@ -180,15 +195,23 @@
     <div class="callout" id="simVerdict"></div>
   </section>
 
-  <section class="card" aria-labelledby="h-src">
-    <h2 id="h-src">D'où viennent les données</h2>
-    <div class="src"><span class="dot" style="background:var(--success)"></span><div><p class="t">Caisse — automatique</p><p class="muted">CA, couverts, ticket moyen, chaque nuit. Rien à saisir.</p></div></div>
-    <div class="src"><span class="dot" style="background:var(--warning)"></span><div><p class="t">Achats — factures ou banque</p><p class="muted">Le point faible : sans inventaire, le coût matière est une estimation. Un inventaire mensuel le recale.</p></div></div>
-    <div class="src"><span class="dot" style="background:var(--warning)"></span><div><p class="t">Personnel — planning ou paie</p><p class="muted">Les heures planifiées donnent la masse salariale au jour, la paie la corrige en fin de mois.</p></div></div>
-    <div class="src"><span class="dot" style="background:var(--success)"></span><div><p class="t">Charges fixes — saisies une fois</p><p class="muted">Loyer, énergie, assurances, leasing : repris de ton dernier bilan.</p></div></div>
+  <section class="card" aria-labelledby="h-calc">
+    <h2 id="h-calc">Comment je calcule ton EBE</h2>
+    <p class="muted" style="margin-top:8px" id="calcSub"></p>
+    <div class="calc" id="calc"></div>
+    <div class="callout warn" id="calcRel"></div>
+    <details>
+      <summary>Ce qui n'entre pas dans l'EBE</summary>
+      <div class="excl">
+        <p><strong>Compte courant d'associé.</strong> C'est une dette de la société envers toi, pas une charge : il ne touche ni l'EBE ni le résultat. Seuls ses intérêts éventuels pèsent, et en dessous de l'EBE.</p>
+        <p><strong>Amortissements et provisions.</strong> Ils servent à passer de l'EBE au résultat. Ils se calculent une fois par an, à partir du tableau d'immobilisations.</p>
+        <p><strong>Intérêts d'emprunt, impôt sur les sociétés, exceptionnel.</strong> Tout ça se situe sous l'EBE.</p>
+        <p><strong>Remboursement du capital d'un prêt.</strong> Il sort de ta trésorerie mais n'est pas une charge.</p>
+      </div>
+    </details>
   </section>
 
-  <footer>v1 · prototype · aucune donnée réelle</footer>
+  <footer>v2 · prototype · aucune donnée réelle</footer>
 </main>
 
 <script>
@@ -329,6 +352,26 @@ $('ytdEbeD').innerHTML = `<span class="${dY >= 0 ? 'pos' : 'neg'}">${sgn(dY / 10
       <p class="note muted"><span class="${good ? 'pos' : 'neg'}">${sgn(d)} pt</span> vs 2025 · repère ${pc(r.band[0], 0)}–${pc(r.band[1], 0)}${inBand ? '' : ' · <strong>hors repère</strong>'}</p>
     </div>`;
   }).join('');
+})();
+
+/* ---------- Calcul EBE détaillé ---------- */
+(function calc(){
+  const f = n / 365;
+  const rows = [
+    { op:'', nm:"Chiffre d'affaires", v:ytd26, tag:'auto', t:'Automatique', src:'Caisse, chaque nuit' },
+    { op:'−', nm:'Achats consommés', v:ytd26 * CFG[2026].mat, tag:'est', t:'Estimé', src:'Factures fournisseurs, corrigées du stock' },
+    { op:'−', nm:'Charges externes', v:CFG[2026].ext * 12 * f * .93, tag:'auto', t:'Automatique', src:'Relevés bancaires : loyer, énergie, leasing…' },
+    { op:'−', nm:'Frais km, abonnements annuels', v:CFG[2026].ext * 12 * f * .07, tag:'once', t:'Réglé une fois', src:'Forfait mensuel provisionné' },
+    { op:'−', nm:'Impôts et taxes', v:ytd26 * CFG[2026].tax, tag:'once', t:'Réglé une fois', src:'CFE et autres taxes, lissées sur 12 mois' },
+    { op:'−', nm:'Personnel', v:CFG[2026].pers * 12 * f, tag:'est', t:'Estimé', src:'Planning / pointage, recalé à chaque paie' },
+  ];
+  $('calcSub').textContent = `Du 1er janvier à hier. Chaque ligne indique d'où vient le chiffre et s'il est automatique.`;
+  $('calc').innerHTML = rows.map(r => `<div class="ln"><span class="op">${r.op}</span><span class="nm">${r.nm}</span><span class="am">${keur(r.v)}</span>
+      <span class="sr"><span class="tag ${r.tag}">${r.t}</span>${r.src}</span></div>`).join('')
+    + `<div class="ln tot"><span class="op">=</span><span class="nm">EBE</span><span class="am">${keur(ebeYtd26)}</span></div>`;
+  const errMat = ytd26 * 0.015, errPers = CFG[2026].pers * 12 * f * 0.02;
+  $('calcRel').innerHTML = `<strong>Fiabilité aujourd'hui : ± ${keur(errMat + errPers)}.</strong> `
+    + `Le stock en explique ${Math.round(errMat / (errMat + errPers) * 100)} %. Un inventaire de tes 20 produits les plus chers, une fois par mois, suffit à le resserrer.`;
 })();
 
 /* ---------- Simulateur d'embauche ---------- */
