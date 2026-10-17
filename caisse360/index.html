@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Caisse 360 — prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff; --n50:#f7f7f8; --n100:#efeff1; --n200:#e3e3e7; --n300:#c4c4cc;
+    --n500:#6b6b76; --n700:#3f3f48; --n900:#1c1c22; --n950:#111115;
+    --accent:#2b59c3; --accent-h:#234aa6; --accent-s:#e8eefb;
+    --ok:#157a3c; --ok-s:#e3f5e9; --warn:#a55a07; --warn-s:#fdf1dc; --bad:#b42323; --bad-s:#fbe5e5;
+    --e1:0 1px 2px rgba(17,17,21,.06),0 2px 8px rgba(17,17,21,.04);
+    --e3:0 8px 24px rgba(17,17,21,.12),0 2px 6px rgba(17,17,21,.06);
+    --tab:64px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{min-height:100dvh;background:var(--n50);color:var(--n900);font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif,"Apple Color Emoji","Noto Color Emoji";font-variant-numeric:tabular-nums;-webkit-tap-highlight-color:transparent}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:5;background:rgba(247,247,248,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+         padding:calc(env(safe-area-inset-top) + 12px) 16px 12px}
+  .hrow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .brand .t{font-size:20px;line-height:28px;font-weight:600;color:var(--n950)}
+  .brand .s{font-size:14px;line-height:20px;color:var(--n500)}
+  .role{display:grid;grid-template-columns:1fr 1fr;padding:4px;gap:4px;background:var(--n100);border-radius:12px;flex:none}
+  .role button{min-height:36px;padding:0 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--n700);transition:background-color .15s ease-out}
+  .role button[aria-pressed=true]{background:var(--n0);color:var(--n950);box-shadow:var(--e1)}
+  .demo{display:inline-block;margin-top:8px;padding:0 8px;border-radius:9999px;background:var(--warn-s);color:var(--warn);font-size:12px;line-height:20px;font-weight:500}
+
+  main{max-width:520px;margin:0 auto;padding:8px 16px calc(var(--tab) + env(safe-area-inset-bottom) + 96px)}
+  section.view{display:none;gap:24px}
+  section.view.on{display:grid;animation:in .2s ease-out}
+  @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){section.view.on{animation:none}}
+
+  .card{background:var(--n0);border-radius:16px;box-shadow:var(--e1);padding:16px}
+  .h2{font-size:14px;line-height:20px;font-weight:500;color:var(--n500);text-transform:uppercase;letter-spacing:.05em}
+  .h2row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .link{color:var(--accent);font-size:14px;font-weight:500;min-height:44px;display:inline-flex;align-items:center}
+  .muted{color:var(--n500);font-size:14px;line-height:20px}
+  .big{font-size:36px;line-height:40px;font-weight:700;letter-spacing:-.02em;color:var(--n950)}
+  .mid{font-size:24px;line-height:32px;font-weight:600;color:var(--n950)}
+  .pos{color:var(--ok)} .neg{color:var(--bad)} .wrn{color:var(--warn)}
+  .pill{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:9999px;font-size:12px;line-height:20px;font-weight:500;white-space:nowrap}
+  .pill.ok{background:var(--ok-s);color:var(--ok)} .pill.warn{background:var(--warn-s);color:var(--warn)}
+  .pill.bad{background:var(--bad-s);color:var(--bad)} .pill.info{background:var(--accent-s);color:var(--accent)} .pill.n{background:var(--n100);color:var(--n700)}
+  .stack>*+*{margin-top:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .why{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+
+  /* Lists */
+  .list{margin-top:12px}
+  .item{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 0;border-top:1px solid var(--n100)}
+  .item:first-child{border-top:0}
+  .item .ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--n100)}
+  .item .tx{flex:1;min-width:0}
+  .item .t1{font-weight:500;color:var(--n950)}
+  .item .t2{font-size:14px;line-height:20px;color:var(--n500)}
+  .item .rt{flex:none;text-align:right}
+  .item .rt .v{font-weight:600;color:var(--n950)}
+
+  /* Buttons */
+  .btn{min-height:44px;padding:0 16px;border-radius:8px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background-color .15s ease-out,transform .1s ease-out}
+  .btn:active{transform:scale(.97)}
+  .btn.pri{background:var(--accent);color:#fff} .btn.pri:hover{background:var(--accent-h)}
+  .btn.sec{background:var(--n100);color:var(--n900)}
+  .btn.full{width:100%}
+  .btn[disabled]{opacity:.6;cursor:default}
+  .row-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+
+  /* Prépa stepper */
+  .step{display:flex;align-items:center;gap:4px;flex:none}
+  .step button{width:44px;height:44px;border-radius:12px;background:var(--n100);font-size:20px;font-weight:500}
+  .step .q{min-width:44px;text-align:center;font-weight:600;color:var(--n950)}
+  .item.skip .t1{text-decoration:line-through;color:var(--n500)}
+  .learn{margin-top:4px;font-size:12px;line-height:16px;color:var(--accent);font-weight:500}
+
+  /* Bars */
+  .bar{position:relative;height:8px;border-radius:9999px;background:var(--n100);overflow:hidden;margin-top:8px}
+  .bar i{position:absolute;inset:0 auto 0 0;border-radius:9999px;background:var(--accent)}
+  .bar i.ok{background:var(--ok)} .bar i.warn{background:var(--warn)}
+
+  /* Week */
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px;align-items:end;height:140px}
+  .day{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+  .day .col{width:100%;max-width:32px;border-radius:6px 6px 2px 2px;background:var(--accent-s);position:relative}
+  .day .col b{position:absolute;inset:auto 0 0 0;border-radius:6px 6px 2px 2px;background:var(--accent)}
+  .day .lb{font-size:12px;line-height:16px;color:var(--n500)}
+  .day .wx{font-size:16px;line-height:16px}
+  .day .cv{font-size:12px;line-height:16px;font-weight:600;color:var(--n900)}
+
+  /* Tab bar */
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+           border-top:1px solid var(--n200);padding-bottom:env(safe-area-inset-bottom)}
+  nav.tabs .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--tab)}
+  nav.tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;line-height:16px;font-weight:500;color:var(--n500)}
+  nav.tabs button .gl{font-size:22px;line-height:24px;filter:grayscale(1);opacity:.7}
+  nav.tabs button[aria-current=page]{color:var(--accent)}
+  nav.tabs button[aria-current=page] .gl{filter:none;opacity:1}
+  .fab{position:fixed;z-index:7;right:16px;bottom:calc(var(--tab) + env(safe-area-inset-bottom) + 16px);width:56px;height:56px;border-radius:9999px;
+       background:var(--accent);color:#fff;font-size:28px;font-weight:400;box-shadow:var(--e3);display:grid;place-items:center;transition:transform .15s ease-out}
+  .fab:active{transform:scale(.94)}
+  @media (min-width:560px){.fab{right:calc(50% - 260px + 16px)}}
+
+  /* Sheet */
+  .scrim{position:fixed;inset:0;z-index:8;background:rgba(17,17,21,.4);opacity:0;pointer-events:none;transition:opacity .2s ease-out}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;z-index:9;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--n0);border-radius:16px 16px 0 0;box-shadow:var(--e3);
+         padding:8px 16px calc(env(safe-area-inset-bottom) + 24px);transform:translateY(105%);transition:transform .24s cubic-bezier(.2,.8,.2,1);max-height:86dvh;overflow:auto}
+  .sheet.on{transform:none}
+  .grab{width:40px;height:4px;border-radius:9999px;background:var(--n200);margin:0 auto 16px}
+  .sheet h3{font-size:20px;line-height:28px;font-weight:600;color:var(--n950)}
+  .qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+  .qa button{min-height:88px;border-radius:12px;background:var(--n50);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:500;color:var(--n900)}
+  .qa button span{font-size:26px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chips button{min-height:44px;padding:0 14px;border-radius:9999px;background:var(--n100);font-size:14px;font-weight:500;color:var(--n700)}
+  .chips button[aria-pressed=true]{background:var(--accent);color:#fff}
+  .field{margin-top:16px}
+  .field label{display:block;font-size:14px;font-weight:500;color:var(--n700)}
+  .field input{width:100%;min-height:44px;margin-top:8px;padding:8px 12px;border-radius:8px;border:1px solid var(--n200);font:inherit;background:var(--n0)}
+  .mic{width:88px;height:88px;border-radius:9999px;background:var(--accent);color:#fff;font-size:36px;display:grid;place-items:center;margin:24px auto 8px;box-shadow:var(--e3)}
+  .bubble{padding:12px;border-radius:12px;background:var(--n50);font-size:14px;line-height:20px;margin-top:12px}
+  .bubble.me{background:var(--accent-s);color:var(--n900)}
+
+  /* Toast */
+  .toast{position:fixed;z-index:10;left:16px;right:16px;bottom:calc(var(--tab) + env(safe-area-inset-bottom) + 88px);max-width:488px;margin:0 auto;
+         background:var(--n950);color:#fff;border-radius:12px;padding:12px 16px;font-size:14px;line-height:20px;box-shadow:var(--e3);
+         opacity:0;transform:translateY(8px);transition:opacity .2s ease-out,transform .2s ease-out;pointer-events:none}
+  .toast.on{opacity:1;transform:none}
+
+  .only-boss{} body.staff .only-boss{display:none!important}
+  .only-staff{display:none} body.staff .only-staff{display:block}
+  footer{text-align:center;color:var(--n500);font-size:12px;line-height:16px;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div class="brand">
+      <p class="t">Crêperie du Port</p>
+      <p class="s" id="hdate"></p>
+    </div>
+    <div class="role" role="group" aria-label="Vue">
+      <button type="button" data-role="boss" aria-pressed="true">Patron</button>
+      <button type="button" data-role="staff" aria-pressed="false">Équipe</button>
+    </div>
+  </div>
+  <span class="demo">● Prototype · données fictives</span>
+</header>
+
+<main>
+<!-- ================= AUJOURD'HUI ================= -->
+<section class="view on" id="v-today" aria-label="Aujourd'hui">
+  <div class="card">
+    <p class="h2">Service de ce midi</p>
+    <p class="big" style="margin-top:8px">86 couverts</p>
+    <p class="muted">prévus · samedi dernier : 71 · 32 déjà réservés</p>
+    <div class="why">
+      <span class="pill ok">☀️ 24 °C, terrasses ouvertes +14 %</span>
+      <span class="pill info">🎒 Vacances zone A +6 %</span>
+      <span class="pill n">📅 32 résas</span>
+    </div>
+  </div>
+
+  <div class="card only-staff">
+    <p class="h2">Mon service</p>
+    <div class="list">
+      <div class="item"><div class="ic">🕚</div><div class="tx"><p class="t1">11:30 → 15:00</p><p class="t2">Salle + terrasse 2 · référent : Loïc</p></div><div class="rt"><button class="btn pri" data-act="pointer">Pointer</button></div></div>
+      <div class="item"><div class="ic">✅</div><div class="tx"><p class="t1">Checklist mise en place</p><p class="t2">6 / 9 faits</p><div class="bar"><i class="ok" style="width:66%"></i></div></div></div>
+      <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">SOP : accueil & prise de commande</p><p class="t2">Lu à 80 % · 4 min restantes</p></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Prépa du jour</p><span class="muted" id="prepCount"></span></div>
+    <p class="muted" style="margin-top:4px">Calculée sur la prévision, le stock et les DLC. Corrige-la : je retiens tes corrections.</p>
+    <div class="list" id="prep"></div>
+    <button class="btn pri full" style="margin-top:16px" id="prepGo">Valider la prépa</button>
+  </div>
+
+  <div class="card">
+    <p class="h2">À traiter</p>
+    <div class="list">
+      <div class="item"><div class="ic">🚚</div><div class="tx"><p class="t1">Livraison Pomona · 10:30</p><p class="t2">23 lignes attendues</p></div><div class="rt"><button class="btn sec" data-go="buy">Réceptionner</button></div></div>
+      <div class="item"><div class="ic">🌡️</div><div class="tx"><p class="t1">Chambre froide : 5,8 °C</p><p class="t2">Au-dessus de 4 °C depuis 35 min</p></div><div class="rt"><span class="pill bad">Alerte</span></div></div>
+      <div class="item only-boss"><div class="ic">🧾</div><div class="tx"><p class="t1">Commande suggérée prête</p><p class="t2">3 fournisseurs · 1 284 €</p></div><div class="rt"><button class="btn sec" data-go="buy">Voir</button></div></div>
+      <div class="item only-boss"><div class="ic">🧯</div><div class="tx"><p class="t1">Vérification extincteurs</p><p class="t2">Échéance dans 12 jours · Sicli</p></div><div class="rt"><span class="pill warn">J-12</span></div></div>
+      <div class="item only-boss"><div class="ic">⭐</div><div class="tx"><p class="t1">2 avis Google sans réponse</p><p class="t2">Réponses proposées, à valider</p></div><div class="rt"><span class="pill info">2</span></div></div>
+    </div>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Hier</p><button class="link" data-go="pilot">Pilotage →</button></div>
+    <div class="grid2">
+      <div><p class="muted">CA</p><p class="mid">3 412 €</p><p class="muted"><span class="pos">+9 %</span> vs N-1</p></div>
+      <div><p class="muted">Résultat du jour</p><p class="mid pos">+812 €</p><p class="muted">point mort 2 140 €</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PILOTAGE ================= -->
+<section class="view" id="v-pilot" aria-label="Pilotage">
+  <div class="card only-staff"><p class="t1" style="font-weight:500">Réservé au patron</p><p class="muted">Les chiffres financiers ne sont visibles qu'en vue Patron.</p></div>
+
+  <div class="card only-boss">
+    <p class="h2">EBE prévisionnel 2026</p>
+    <p class="big" style="margin-top:8px">71,4 k€</p>
+    <p class="muted">fourchette 68,0 – 74,1 k€ · 10,9 % du CA</p>
+    <p class="muted" style="margin-top:12px">Objectif <b style="color:var(--n950)">80 k€</b> · il manque 8,6 k€</p>
+    <div class="bar"><i class="warn" style="width:89%"></i></div>
+    <div class="bubble" style="margin-top:16px"><b>Levier n°1 : le coût matière</b> est à 30,8 %, +1,6 pt sur N-1. Revenir à 29,2 % rapporte 9,1 k€ sur l'année. L'écart vient surtout du <b>beurre (+14 %)</b> et des <b>pertes de crème</b>.</div>
+  </div>
+
+  <div class="card only-boss">
+    <p class="h2">7 prochains jours</p>
+    <div class="week" id="week"></div>
+    <p class="muted" style="margin-top:12px">Couverts prévus. Ce calcul combine l'année dernière, la tendance, la météo, les vacances et les réservations.</p>
+  </div>
+
+  <div class="card only-boss">
+    <p class="h2">Ratios 2026</p>
+    <div id="ratios"></div>
+  </div>
+
+  <div class="card only-boss">
+    <p class="h2">Je peux embaucher ?</p>
+    <div class="field"><label for="hrs">Temps partiel : <b id="hrsV">15</b> h / semaine</label><input type="range" id="hrs" min="5" max="35" value="15" style="padding:0;border:0;accent-color:var(--accent)"></div>
+    <div class="bubble" id="hire"></div>
+  </div>
+
+  <div class="card only-boss">
+    <p class="h2">Temps qui ne rapporte pas</p>
+    <p class="mid" style="margin-top:8px">6 h 40 <span class="muted" style="font-weight:400">/ semaine</span></p>
+    <p class="muted">avant la caisse 360 : 14 h 10 · <span class="pos">−53 %</span></p>
+    <div class="list">
+      <div class="item"><div class="ic">🧾</div><div class="tx"><p class="t1">Factures & pièces comptables</p><p class="t2">3 h → 25 min</p></div></div>
+      <div class="item"><div class="ic">🌡️</div><div class="tx"><p class="t1">Relevés HACCP</p><p class="t2">2 h → 0 (sondes)</p></div></div>
+      <div class="item"><div class="ic">📅</div><div class="tx"><p class="t1">Plannings & heures</p><p class="t2">2 h 30 → 1 h</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CUISINE ================= -->
+<section class="view" id="v-kitchen" aria-label="Cuisine">
+  <div class="card">
+    <p class="h2">Froid · en direct</p>
+    <div class="list">
+      <div class="item"><div class="ic">🧊</div><div class="tx"><p class="t1">Chambre froide</p><p class="t2">cible ≤ 4 °C</p></div><div class="rt"><p class="v neg">5,8 °C</p><span class="pill bad">35 min</span></div></div>
+      <div class="item"><div class="ic">🧊</div><div class="tx"><p class="t1">Frigo crêpier</p><p class="t2">cible ≤ 4 °C</p></div><div class="rt"><p class="v">3,1 °C</p><span class="pill ok">OK</span></div></div>
+      <div class="item"><div class="ic">❄️</div><div class="tx"><p class="t1">Congélateur 1</p><p class="t2">cible ≤ −18 °C</p></div><div class="rt"><p class="v">−20,4 °C</p><span class="pill ok">OK</span></div></div>
+      <div class="item"><div class="ic">❄️</div><div class="tx"><p class="t1">Congélateur 2 (réserve)</p><p class="t2">cible ≤ −18 °C</p></div><div class="rt"><p class="v">−19,2 °C</p><span class="pill ok">OK</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Où sont mes produits</p><span class="muted">DLC la plus proche d'abord</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">🥛</div><div class="tx"><p class="t1">Crème fraîche · lot L2410</p><p class="t2">Chambre froide · étagère 2</p></div><div class="rt"><span class="pill bad">DLC demain</span></div></div>
+      <div class="item"><div class="ic">🌭</div><div class="tx"><p class="t1">Andouille de Guémené · 1,4 kg</p><p class="t2">Frigo crêpier · bac B</p></div><div class="rt"><span class="pill warn">J+3</span></div></div>
+      <div class="item"><div class="ic">🥣</div><div class="tx"><p class="t1">Pâte sarrasin · 12 L (prod. 07:40)</p><p class="t2">Chambre froide · bac 1</p></div><div class="rt"><span class="pill ok">J+2</span></div></div>
+      <div class="item"><div class="ic">🍗</div><div class="tx"><p class="t1">Poulet effiloché · 2,1 kg (cellule ✓)</p><p class="t2">Congélateur 1 · tiroir 3</p></div><div class="rt"><span class="pill ok">J+60</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="h2">Registres du jour</p>
+    <div class="list">
+      <div class="item"><div class="ic">🧽</div><div class="tx"><p class="t1">Plan de nettoyage</p><p class="t2">7 / 11 tâches signées</p><div class="bar"><i class="ok" style="width:64%"></i></div></div></div>
+      <div class="item"><div class="ic">📦</div><div class="tx"><p class="t1">Contrôles à réception</p><p class="t2">1 livraison à contrôler (Pomona)</p></div><div class="rt"><span class="pill warn">1</span></div></div>
+      <div class="item"><div class="ic">🏷️</div><div class="tx"><p class="t1">Étiquettes DLC imprimées</p><p class="t2">9 aujourd'hui</p></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Pertes · 7 jours</p><span class="muted only-boss">186 €</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">🥛</div><div class="tx"><p class="t1">Crème fraîche</p><p class="t2">Périmée · surtout le lundi</p></div><div class="rt"><p class="v only-boss">74 €</p></div></div>
+      <div class="item"><div class="ic">🥞</div><div class="tx"><p class="t1">Crêpes ratées</p><p class="t2">Erreur de préparation</p></div><div class="rt"><p class="v only-boss">31 €</p></div></div>
+      <div class="item"><div class="ic">🍎</div><div class="tx"><p class="t1">Pommes</p><p class="t2">Abîmées à réception</p></div><div class="rt"><p class="v only-boss">22 €</p></div></div>
+    </div>
+    <div class="bubble only-boss" style="margin-top:12px">💡 La commande de crème du vendredi est réduite de 2 L. Les pertes du lundi viennent de là.</div>
+    <button class="btn sec full" style="margin-top:16px" data-act="perte">Déclarer une perte</button>
+  </div>
+</section>
+
+<!-- ================= ACHATS ================= -->
+<section class="view" id="v-buy" aria-label="Achats">
+  <div class="card">
+    <div class="h2row"><p class="h2">Réception · Pomona</p><span class="pill warn" id="recBadge">3 écarts</span></div>
+    <p class="muted" style="margin-top:4px">Bon de livraison scanné à 10:34. Comparé à la commande et à la facture électronique.</p>
+    <div class="list">
+      <div class="item"><div class="ic">🧈</div><div class="tx"><p class="t1">Beurre demi-sel 5 kg</p><p class="t2">Commandé 4 · livré 3</p></div><div class="rt"><span class="pill bad">−1</span></div></div>
+      <div class="item"><div class="ic">🥚</div><div class="tx"><p class="t1">Œufs plein air ×180</p><p class="t2">Facturé 0,31 € · tarif 0,28 €</p></div><div class="rt"><span class="pill bad">+5,40 €</span></div></div>
+      <div class="item"><div class="ic">🍎</div><div class="tx"><p class="t1">Pommes 10 kg</p><p class="t2">Livré, 1 cagette abîmée (photo)</p></div><div class="rt"><span class="pill warn">refus</span></div></div>
+      <div class="item"><div class="ic">✅</div><div class="tx"><p class="t1">20 autres lignes conformes</p><p class="t2">Lots et DLC enregistrés · 3,2 °C à réception</p></div></div>
+    </div>
+    <button class="btn pri full" style="margin-top:16px" id="avoirBtn">Envoyer la demande d'avoir · 41,90 €</button>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Commande suggérée · lundi</p><span class="muted">1 284 €</span></div>
+    <p class="muted" style="margin-top:4px">Calculée sur la prévision de la semaine, le stock et les DLC. Le panier est optimisé avec les francos.</p>
+    <div class="list">
+      <div class="item"><div class="ic">🥬</div><div class="tx"><p class="t1">Pomona · 14 lignes</p><p class="t2">franco atteint ✓ · livraison mardi</p></div><div class="rt"><p class="v">612 €</p></div></div>
+      <div class="item"><div class="ic">🌾</div><div class="tx"><p class="t1">Minoterie Bertel · farine sarrasin</p><p class="t2">2 sacs · moins cher que Pomona (−0,18 €/kg)</p></div><div class="rt"><p class="v">96 €</p></div></div>
+      <div class="item"><div class="ic">🍺</div><div class="tx"><p class="t1">Boissons · cidre Sorre, bière Meteor</p><p class="t2">Par SMS au commercial</p></div><div class="rt"><p class="v">576 €</p></div></div>
+    </div>
+    <p class="muted" style="margin-top:12px">Économie vs tout chez Pomona : <b class="pos">38 €</b></p>
+    <div class="row-btns"><button class="btn sec">Modifier</button><button class="btn pri" id="orderBtn">Valider & envoyer</button></div>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Ce que tu achètes le plus</p><span class="muted">12 mois</span></div>
+    <div id="top"></div>
+  </div>
+
+  <div class="card only-boss">
+    <p class="h2">Négociation · beurre</p>
+    <p class="mid" style="margin-top:8px">+14 % en 4 mois</p>
+    <p class="muted">Tu en prévois 1 120 kg sur 12 mois. Deux concurrents ont répondu à l'appel d'offres.</p>
+    <div class="list">
+      <div class="item"><div class="ic">🏷️</div><div class="tx"><p class="t1">Pomona (actuel)</p><p class="t2">8,95 €/kg</p></div></div>
+      <div class="item"><div class="ic">🏷️</div><div class="tx"><p class="t1">Transgourmet</p><p class="t2">8,20 €/kg · franco 250 €</p></div><div class="rt"><span class="pill ok">−8 %</span></div></div>
+      <div class="item"><div class="ic">🏷️</div><div class="tx"><p class="t1">Laiterie locale</p><p class="t2">8,60 €/kg · livraison jeudi</p></div><div class="rt"><span class="pill ok">−4 %</span></div></div>
+    </div>
+    <div class="bubble">Proposition de mail à Pomona : « On vous prend 1 120 kg sur l'année, une offre concurrente est à 8,20 €… » <b>Tu valides avant l'envoi.</b></div>
+    <div class="row-btns"><button class="btn sec">Lire le brouillon</button><button class="btn pri" id="negoBtn">Envoyer à Pomona</button></div>
+  </div>
+</section>
+
+<!-- ================= ÉQUIPE ================= -->
+<section class="view" id="v-team" aria-label="Équipe">
+  <div class="card">
+    <div class="h2row"><p class="h2">Présents</p><span class="muted">pointage par QR</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">👩‍🍳</div><div class="tx"><p class="t1">Julie · cuisine</p><p class="t2">pointée 07:28</p></div><div class="rt"><span class="pill ok">là</span></div></div>
+      <div class="item"><div class="ic">🧑‍🍳</div><div class="tx"><p class="t1">Malo · crêpier</p><p class="t2">pointé 09:02 · prévu 09:00</p></div><div class="rt"><span class="pill ok">là</span></div></div>
+      <div class="item"><div class="ic">🙋‍♀️</div><div class="tx"><p class="t1">Inès · salle (CDD, 1re semaine)</p><p class="t2">prévue 11:30</p></div><div class="rt"><span class="pill n">à venir</span></div></div>
+    </div>
+  </div>
+
+  <div class="card only-boss">
+    <p class="h2">Planning vs prévision</p>
+    <div class="list">
+      <div class="item"><div class="ic">📅</div><div class="tx"><p class="t1">Samedi</p><p class="t2">112 couverts prévus · 4 en salle</p></div><div class="rt"><span class="pill warn">sous-effectif</span></div></div>
+      <div class="item"><div class="ic">📅</div><div class="tx"><p class="t1">Mardi</p><p class="t2">38 couverts prévus · 3 en salle</p></div><div class="rt"><span class="pill info">+4 h possibles</span></div></div>
+    </div>
+    <div class="bubble">Suggestion : déplacer 4 h de mardi vers samedi soir (Inès est dispo). Masse salariale de la semaine : <b>34,8 %</b> du CA prévu, cible 35 %.</div>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Pourboires · semaine</p><span class="muted">règle : au prorata des heures</span></div>
+    <p class="mid" style="margin-top:8px">412 €</p>
+    <div id="tips"></div>
+  </div>
+
+  <div class="card">
+    <p class="h2">Formations & habilitations</p>
+    <div class="list">
+      <div class="item"><div class="ic">🧼</div><div class="tx"><p class="t1">Hygiène alimentaire</p><p class="t2">Loïc · valide</p></div><div class="rt"><span class="pill ok">OK</span></div></div>
+      <div class="item"><div class="ic">🍷</div><div class="tx"><p class="t1">Permis d'exploitation</p><p class="t2">Loïc · renouvellement dans 5 mois</p></div><div class="rt"><span class="pill warn">mars</span></div></div>
+      <div class="item"><div class="ic">⛑️</div><div class="tx"><p class="t1">Sauveteur secouriste</p><p class="t2">Julie · expiré</p></div><div class="rt"><span class="pill bad">à planifier</span></div></div>
+      <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">Intégration Inès</p><p class="t2">Jour 2 / 5 · SOP service</p><div class="bar"><i style="width:40%"></i></div></div></div>
+    </div>
+  </div>
+  <footer>v1 · prototype · aucune donnée réelle</footer>
+</section>
+</main>
+
+<button class="fab" id="fab" aria-label="Actions rapides">+</button>
+
+<nav class="tabs" aria-label="Navigation">
+  <div class="in">
+    <button data-tab="today" aria-current="page"><span class="gl">🏠</span>Aujourd'hui</button>
+    <button data-tab="pilot"><span class="gl">📊</span>Pilotage</button>
+    <button data-tab="kitchen"><span class="gl">🍳</span>Cuisine</button>
+    <button data-tab="buy"><span class="gl">🛒</span>Achats</button>
+    <button data-tab="team"><span class="gl">👥</span>Équipe</button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Actions"><div class="grab"></div><div id="sheetBody"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+$('#hdate').textContent = new Date(2026, 9, 17).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' }) + ' · 08:12';
+
+/* ---------- Toast ---------- */
+let tt; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2600); }
+
+/* ---------- Tabs ---------- */
+function go(tab){
+  $$('section.view').forEach(v=>v.classList.toggle('on', v.id==='v-'+tab));
+  $$('nav.tabs button').forEach(b=>{ if(b.dataset.tab===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  history.replaceState(null,'','#'+tab); window.scrollTo({top:0});
+}
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+if(location.hash) go(location.hash.slice(1));
+
+/* ---------- Rôle ---------- */
+$$('.role button').forEach(b=>b.addEventListener('click',()=>{
+  $$('.role button').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  document.body.classList.toggle('staff', b.dataset.role==='staff');
+  toast(b.dataset.role==='staff' ? 'Vue Équipe : chiffres financiers masqués' : 'Vue Patron');
+}));
+
+/* ---------- Prépa du jour ---------- */
+const PREP = [
+  { n:'Pâte sarrasin', u:'L', q:14, s:'Stock 12 L → besoin 26 L' },
+  { n:'Pâte froment', u:'L', q:8, s:'Stock 4 L → besoin 12 L' },
+  { n:'Andouille de Guémené', u:'kg', q:1.5, s:'Stock 1,4 kg → besoin 2,9 kg', step:.5 },
+  { n:'Poulet effiloché', u:'kg', q:2, s:'Décongeler (congél. 1, tiroir 3)', step:.5 },
+  { n:'Caramel beurre salé', u:'L', q:2, s:'Stock 0,5 L → besoin 2,5 L', step:.5 },
+  { n:'Pommes poêlées', u:'kg', q:3, s:'Nouvelle livraison ce matin', step:.5 },
+];
+const REASONS = ['Il en reste au frigo','Pas à la carte aujourd\'hui','Trop / pas assez prévu','Produit manquant'];
+function fmt(q,u){ return (Number.isInteger(q)?q:q.toLocaleString('fr-FR')) + ' ' + u; }
+function renderPrep(){
+  const live = PREP.filter(p=>!p.skip).length;
+  $('#prepCount').textContent = live + ' / ' + PREP.length;
+  $('#prep').innerHTML = PREP.map((p,i)=>`
+    <div class="item ${p.skip?'skip':''}">
+      <div class="tx"><p class="t1">${p.n}</p><p class="t2">${p.s}</p>${p.learn?`<p class="learn">✓ Noté : « ${p.learn} »</p>`:''}</div>
+      ${p.skip ? `<button class="btn sec" data-i="${i}" data-a="undo">Rétablir</button>` : `
+      <div class="step">
+        <button aria-label="Moins" data-i="${i}" data-a="-">−</button>
+        <span class="q">${fmt(p.q,p.u)}</span>
+        <button aria-label="Plus" data-i="${i}" data-a="+">+</button>
+      </div>`}
+    </div>`).join('');
+}
+$('#prep').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return; const p=PREP[+b.dataset.i], st=p.step||1;
+  if(b.dataset.a==='+') { p.q=+(p.q+st).toFixed(1); p.touched=true; }
+  if(b.dataset.a==='-') { if(p.q-st<=0) return askSkip(+b.dataset.i); p.q=+(p.q-st).toFixed(1); p.touched=true; }
+  if(b.dataset.a==='undo') { p.skip=false; p.learn=null; }
+  renderPrep();
+});
+function askSkip(i){
+  const p=PREP[i];
+  openSheet(`<h3>Pas de ${p.n.toLowerCase()} aujourd'hui ?</h3><p class="muted">Dis-moi pourquoi, je m'en servirai pour les prochaines prévisions.</p>
+    <div class="chips">${REASONS.map(r=>`<button data-r="${r}">${r}</button>`).join('')}</div>`);
+  $('#sheetBody').querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{
+    p.skip=true; p.learn = b.dataset.r + ' (sam.)'; closeSheet(); renderPrep(); toast('Correction enregistrée. La prévision en tiendra compte.');
+  }));
+}
+$('#prepGo').addEventListener('click',()=>{
+  const n=PREP.filter(p=>!p.skip).length, c=PREP.filter(p=>p.touched||p.skip).length;
+  toast(`Prépa validée : ${n} tâches réparties · ${c} correction${c>1?'s':''} apprise${c>1?'s':''}`);
+});
+renderPrep();
+
+/* ---------- Semaine ---------- */
+const WEEK=[['sam','☀️',112,'r'],['dim','—',0],['lun','—',0],['mar','⛅',38],['mer','🌧️',41],['jeu','⛅',52],['ven','☀️',94]];
+const mx=Math.max(...WEEK.map(d=>d[2]));
+$('#week').innerHTML = WEEK.map(d=>`<div class="day"><span class="cv">${d[2]||'fermé'}</span>
+  <div class="col" style="height:${d[2]?Math.max(8,d[2]/mx*90):4}px"><b style="height:${d[2]?Math.round(d[2]/mx*90*(d[3]?.45:.25)):0}px"></b></div>
+  <span class="wx">${d[1]}</span><span class="lb">${d[0]}</span></div>`).join('');
+
+/* ---------- Ratios ---------- */
+const R=[['Coût matière',30.8,'26–30 %',.308/.45,'warn','+1,6 pt'],['Masse salariale',35.1,'30–38 %',.351/.5,'ok','+0,2 pt'],['Charges externes',21.2,'15–22 %',.212/.35,'ok','−0,3 pt'],['EBE',10.9,'10–20 %',.109/.25,'warn','−1,5 pt']];
+$('#ratios').innerHTML = R.map(r=>`<div style="margin-top:16px"><div class="h2row"><span style="font-weight:500">${r[0]}</span><span style="font-weight:600">${r[1].toLocaleString('fr-FR')} %</span></div>
+  <div class="bar"><i class="${r[4]}" style="width:${Math.min(r[3],1)*100}%"></i></div><p class="muted" style="margin-top:4px">${r[5]} vs N-1 · repère ${r[2]}</p></div>`).join('');
+
+/* ---------- Embauche ---------- */
+function hire(){
+  const h=+$('#hrs').value; $('#hrsV').textContent=h;
+  const cost=h*52/12*12.5*1.3, ebe=71.4-cost*12/1000, pct=ebe/655*100, perDay=cost*12/260/0.67;
+  const ok=pct>=9;
+  $('#hire').innerHTML = `${ok?'✅ <b>Oui, ça passe.</b>':'⚠️ <b>Juste.</b>'} Coût ${Math.round(cost).toLocaleString('fr-FR')} €/mois. EBE en année pleine ${ebe.toFixed(1).replace('.',',')} k€ (${pct.toFixed(1).replace('.',',')} %). Pour s'autofinancer : <b>+${Math.round(perDay)} €</b> de CA par jour ouvert, soit environ 4 couverts.`;
+}
+$('#hrs').addEventListener('input',hire); hire();
+
+/* ---------- Top achats ---------- */
+const TOP=[['Beurre demi-sel','9,6 k€',18,'+14 %','bad'],['Farine sarrasin','6,1 k€',12,'+2 %','n'],['Œufs plein air','5,4 k€',10,'+6 %','warn'],['Lait entier','3,9 k€',7,'0 %','n'],['Cidre Sorre','3,6 k€',7,'+3 %','n']];
+$('#top').innerHTML = `<div class="list">${TOP.map((t,i)=>`<div class="item"><div class="ic" style="font-size:14px;font-weight:600">${i+1}</div>
+  <div class="tx"><p class="t1">${t[0]}</p><p class="t2">${t[2]} % des achats</p><div class="bar"><i style="width:${t[2]*5}%"></i></div></div>
+  <div class="rt"><p class="v">${t[1]}</p><span class="pill ${t[4]}">${t[3]}</span></div></div>`).join('')}</div>
+  <p class="muted" style="margin-top:8px">Ces 5 produits représentent 54 % de tes achats. C'est là que se négocie la marge.</p>`;
+
+/* ---------- Pourboires ---------- */
+const TIPS=[['Inès',14],['Malo',31],['Julie',35],['Gwen',28]];
+const H=TIPS.reduce((s,t)=>s+t[1],0);
+$('#tips').innerHTML = `<div class="list">${TIPS.map(t=>`<div class="item"><div class="tx"><p class="t1">${t[0]}</p><p class="t2">${t[1]} h pointées</p></div><div class="rt"><p class="v">${Math.round(412*t[1]/H)} €</p></div></div>`).join('')}</div>`;
+
+/* ---------- Boutons simples ---------- */
+$('#avoirBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Demande envoyée à Pomona ✓'; $('#recBadge').className='pill info'; $('#recBadge').textContent='avoir demandé'; toast('Demande d\'avoir envoyée · suivi automatique'); });
+$('#orderBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Envoyée ✓'; toast('3 commandes envoyées (2 mails, 1 SMS)'); });
+$('#negoBtn').addEventListener('click',e=>{ e.currentTarget.disabled=true; e.currentTarget.textContent='Envoyé ✓'; toast('Mail envoyé · relance auto dans 3 jours sans réponse'); });
+
+/* ---------- Sheet ---------- */
+function openSheet(html){ $('#sheetBody').innerHTML=html; $('#sheet').classList.add('on'); $('#scrim').classList.add('on'); }
+function closeSheet(){ $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
+$('#scrim').addEventListener('click',closeSheet);
+
+const ACTIONS = `<h3>Que veux-tu faire ?</h3>
+  <div class="qa">
+    <button data-q="scan"><span>📦</span>Réception</button>
+    <button data-q="perte"><span>🗑️</span>Perte</button>
+    <button data-q="etiq"><span>🏷️</span>Étiquette DLC</button>
+    <button data-q="pointer"><span>⏱️</span>Pointer</button>
+    <button data-q="pay"><span>💳</span>Encaisser</button>
+    <button data-q="voice"><span>🎙️</span>Demander</button>
+  </div>`;
+$('#fab').addEventListener('click',()=>{ openSheet(ACTIONS); bindQA(); });
+function bindQA(){ $('#sheetBody').querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>quick(b.dataset.q))); }
+$$('[data-act]').forEach(b=>b.addEventListener('click',()=>quick(b.dataset.act)));
+
+function quick(q){
+  if(q==='perte'){
+    openSheet(`<h3>Déclarer une perte</h3><p class="muted">Moins de 10 secondes. Le stock, le coût matière et l'EBE se mettent à jour.</p>
+      <div class="field"><label>Produit</label><input value="Crème fraîche 1 L" aria-label="Produit"></div>
+      <div class="field"><label>Motif</label></div>
+      <div class="chips" id="motifs">${['Périmé','Casse','Erreur prépa','Retour assiette','Offert','Repas équipe'].map((m,i)=>`<button aria-pressed="${i===0}">${m}</button>`).join('')}</div>
+      <div class="row-btns"><button class="btn sec">📷 Photo</button><button class="btn pri" id="pOk">Déclarer · 4,20 €</button></div>`);
+    $('#motifs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; $$('#motifs button').forEach(x=>x.setAttribute('aria-pressed',x===b)); });
+    $('#pOk').addEventListener('click',()=>{ closeSheet(); toast('Perte déclarée · stock et coût matière mis à jour'); });
+  } else if(q==='scan'){
+    closeSheet(); go('buy'); toast('Bon de livraison Pomona scanné · 3 écarts détectés');
+  } else if(q==='etiq'){
+    openSheet(`<h3>Étiquette DLC</h3><div class="field"><label>Préparation</label><input value="Pâte sarrasin · 14 L" aria-label="Préparation"></div>
+      <div class="bubble">Produit le 17/10 à 08:14 par Julie · <b>DLC 19/10</b> · lots : farine F0921, œufs E1013 · allergènes : œuf, lait</div>
+      <button class="btn pri full" style="margin-top:16px" id="eOk">Imprimer</button>`);
+    $('#eOk').addEventListener('click',()=>{ closeSheet(); toast('Étiquette imprimée · registre de production mis à jour'); });
+  } else if(q==='pointer'){
+    closeSheet(); toast('Pointage 11:28 enregistré · QR du restaurant reconnu');
+  } else if(q==='pay'){
+    openSheet(`<h3>Encaisser</h3><p class="muted">Table 12 · terrasse 2</p><p class="big" style="margin-top:16px;text-align:center">47,50 €</p>
+      <div class="chips" style="justify-content:center">${['Sans pourboire','+5 %','+10 %'].map((m,i)=>`<button aria-pressed="${i===0}">${m}</button>`).join('')}</div>
+      <div class="mic" style="font-size:30px" aria-hidden="true">💳</div><p class="muted" style="text-align:center">Approche la carte ou le téléphone · CB et titres-restaurant</p>`);
+  } else if(q==='voice'){
+    openSheet(`<h3>Demander</h3><button class="mic" aria-label="Parler">🎙️</button><p class="muted" style="text-align:center">Appuie et parle</p>
+      <div class="bubble me">« Combien j'ai fait hier, et je commande combien de cidre pour la semaine ? »</div>
+      <div class="bubble">Hier : <b>3 412 €</b>, +9 % sur l'an dernier. Pour la semaine, je prévois <b>4 fûts de Sorre</b> : il fera beau samedi et vendredi. Je l'ajoute à la commande ?</div>
+      <div class="row-btns"><button class="btn sec" id="vNo">Non</button><button class="btn pri" id="vOk">Oui, ajoute</button></div>`);
+    $('#vOk').addEventListener('click',()=>{ closeSheet(); toast('4 fûts de cidre ajoutés à la commande de lundi'); });
+    $('#vNo').addEventListener('click',closeSheet);
+  }
+}
+</script>
+</body>
+</html>
