@@ -139,6 +139,13 @@
 
   .only-boss{} body.staff .only-boss{display:none!important}
   .only-staff{display:none} body.staff .only-staff{display:block}
+
+  .chk{flex:none;width:32px;height:32px;margin:6px;border-radius:8px;border:2px solid var(--n300);display:grid;place-items:center;color:#fff;font-weight:700;transition:background-color .15s ease-out,border-color .15s ease-out}
+  .chk.on{background:var(--ok);border-color:var(--ok)}
+  .struck{text-decoration:line-through;color:var(--n500)!important}
+  .step button.ok{background:var(--ok-s);color:var(--ok);font-weight:700}
+  .step button.ko{background:var(--n100);color:var(--n700)}
+  #posts,#regPosts{margin-top:12px}
   footer{text-align:center;color:var(--n500);font-size:12px;line-height:16px;margin-top:8px}
 </style>
 </head>
@@ -161,37 +168,59 @@
 <!-- ================= AUJOURD'HUI ================= -->
 <section class="view on" id="v-today" aria-label="Aujourd'hui">
   <div class="card">
-    <p class="h2">Service de ce midi</p>
-    <p class="big" style="margin-top:8px">86 couverts</p>
-    <p class="muted">prévus · samedi dernier : 71 · 32 déjà réservés</p>
-    <div class="why">
-      <span class="pill ok">☀️ 24 °C, terrasses ouvertes +14 %</span>
-      <span class="pill info">🎒 Vacances zone A +6 %</span>
-      <span class="pill n">📅 32 résas</span>
+    <div class="h2row"><p class="h2">Réservations · ce midi</p><span class="pill n">12:00–14:30</span></div>
+    <div class="grid2" style="margin-top:12px">
+      <div><p class="big">32</p><p class="muted">réservés · 9 tables</p></div>
+      <div><p class="big" style="color:var(--n500)">+54</p><p class="muted">sans résa attendus</p></div>
     </div>
+    <div class="bar" style="height:12px;margin-top:12px" aria-label="37 % réservés"><i style="width:37%"></i></div>
+    <p class="muted" style="margin-top:8px"><b style="color:var(--n950)">86 couverts prévus</b> · ratio habituel le samedi midi : 37 % réservés / 63 % sans résa (sur 26 samedis)</p>
+    <div class="list" id="resas"></div>
+    <button class="link" id="resaMore">Voir les 9 réservations →</button>
   </div>
 
-  <div class="card only-staff">
-    <p class="h2">Mon service</p>
-    <div class="list">
-      <div class="item"><div class="ic">🕚</div><div class="tx"><p class="t1">11:30 → 15:00</p><p class="t2">Salle + terrasse 2 · référent : Loïc</p></div><div class="rt"><button class="btn pri" data-act="pointer">Pointer</button></div></div>
-      <div class="item"><div class="ic">✅</div><div class="tx"><p class="t1">Checklist mise en place</p><p class="t2">6 / 9 faits</p><div class="bar"><i class="ok" style="width:66%"></i></div></div></div>
-      <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">SOP : accueil & prise de commande</p><p class="t2">Lu à 80 % · 4 min restantes</p></div></div>
+  <div class="card">
+    <p class="h2">Le contexte</p>
+    <div class="why">
+      <span class="pill ok">☀️ 24 °C · terrasses +14 %</span>
+      <span class="pill info">🎒 Vacances zone A · +6 %</span>
+      <span class="pill n">🏉 Pas d'événement</span>
+    </div>
+    <div class="grid2">
+      <div><p class="muted">Semaine dernière</p><p class="mid">412 cvts</p><p class="muted"><span class="pos">+7 %</span> vs N-1</p></div>
+      <div class="only-boss"><p class="muted">CA semaine dernière</p><p class="mid">17,9 k€</p><p class="muted">ticket moyen 21,70 €</p></div>
+      <div class="only-staff"><p class="muted">Samedi dernier midi</p><p class="mid">71 cvts</p><p class="muted">pluie</p></div>
     </div>
   </div>
 
   <div class="card">
+    <div class="h2row"><p class="h2">Équipe du jour</p><span class="muted">pointeuse</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">👩‍🍳</div><div class="tx"><p class="t1">Julie · cuisine</p><p class="t2">07:30 → 15:00 · pointée 07:28</p></div><div class="rt"><span class="pill ok">là</span></div></div>
+      <div class="item"><div class="ic">🧑‍🍳</div><div class="tx"><p class="t1">Malo · crêpier</p><p class="t2">09:00 → 15:30 · pointé 09:02</p></div><div class="rt"><span class="pill ok">là</span></div></div>
+      <div class="item"><div class="ic">🙋‍♀️</div><div class="tx"><p class="t1">Inès · salle</p><p class="t2">11:30 → 15:00</p></div><div class="rt"><button class="btn pri" data-act="pointer">Pointer</button></div></div>
+      <div class="item"><div class="ic">🧑</div><div class="tx"><p class="t1">Gwen · salle</p><p class="t2">11:30 → 15:00</p></div><div class="rt"><span class="pill n">à venir</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Tâches du jour</p><span class="muted" id="taskCount"></span></div>
+    <div class="chips" id="posts" role="group" aria-label="Poste"></div>
+    <div class="list" id="tasks"></div>
+  </div>
+
+  <div class="card">
     <div class="h2row"><p class="h2">Prépa du jour</p><span class="muted" id="prepCount"></span></div>
-    <p class="muted" style="margin-top:4px">Calculée sur la prévision, le stock et les DLC. Corrige-la : je retiens tes corrections.</p>
+    <p class="muted" style="margin-top:4px">Calculée sur la prévision, le stock et les DLC. Valide ce qui est fait. Si ce n'est pas fait, dis pourquoi : je m'en sers pour la suite.</p>
     <div class="list" id="prep"></div>
-    <button class="btn pri full" style="margin-top:16px" id="prepGo">Valider la prépa</button>
   </div>
 
   <div class="card">
     <p class="h2">À traiter</p>
     <div class="list">
       <div class="item"><div class="ic">🚚</div><div class="tx"><p class="t1">Livraison Pomona · 10:30</p><p class="t2">23 lignes attendues</p></div><div class="rt"><button class="btn sec" data-go="buy">Réceptionner</button></div></div>
-      <div class="item"><div class="ic">🌡️</div><div class="tx"><p class="t1">Chambre froide : 5,8 °C</p><p class="t2">Au-dessus de 4 °C depuis 35 min</p></div><div class="rt"><span class="pill bad">Alerte</span></div></div>
+      <div class="item"><div class="ic">🌡️</div><div class="tx"><p class="t1">Chambre froide : 5,8 °C</p><p class="t2">Sonde automatique · au-dessus de 4 °C depuis 35 min · porte restée ouverte ?</p></div><div class="rt"><span class="pill bad">Alerte</span></div></div>
+      <div class="item"><div class="ic">⏳</div><div class="tx"><p class="t1">Crème fraîche : DLC demain</p><p class="t2">8 L en stock · à utiliser en priorité</p></div><div class="rt"><span class="pill warn">DLC</span></div></div>
       <div class="item only-boss"><div class="ic">🧾</div><div class="tx"><p class="t1">Commande suggérée prête</p><p class="t2">3 fournisseurs · 1 284 €</p></div><div class="rt"><button class="btn sec" data-go="buy">Voir</button></div></div>
       <div class="item only-boss"><div class="ic">🧯</div><div class="tx"><p class="t1">Vérification extincteurs</p><p class="t2">Échéance dans 12 jours · Sicli</p></div><div class="rt"><span class="pill warn">J-12</span></div></div>
       <div class="item only-boss"><div class="ic">⭐</div><div class="tx"><p class="t1">2 avis Google sans réponse</p><p class="t2">Réponses proposées, à valider</p></div><div class="rt"><span class="pill info">2</span></div></div>
@@ -272,12 +301,15 @@
   </div>
 
   <div class="card">
-    <p class="h2">Registres du jour</p>
-    <div class="list">
-      <div class="item"><div class="ic">🧽</div><div class="tx"><p class="t1">Plan de nettoyage</p><p class="t2">7 / 11 tâches signées</p><div class="bar"><i class="ok" style="width:64%"></i></div></div></div>
-      <div class="item"><div class="ic">📦</div><div class="tx"><p class="t1">Contrôles à réception</p><p class="t2">1 livraison à contrôler (Pomona)</p></div><div class="rt"><span class="pill warn">1</span></div></div>
-      <div class="item"><div class="ic">🏷️</div><div class="tx"><p class="t1">Étiquettes DLC imprimées</p><p class="t2">9 aujourd'hui</p></div></div>
-    </div>
+    <div class="h2row"><p class="h2">Pleins à faire</p><span class="muted" id="pleinCount"></span></div>
+    <p class="muted" style="margin-top:4px">Avant le service. Coche quand c'est fait.</p>
+    <div class="list" id="pleins"></div>
+  </div>
+
+  <div class="card">
+    <div class="h2row"><p class="h2">Registre du jour</p><span class="muted">par poste</span></div>
+    <div class="chips" id="regPosts" role="group" aria-label="Poste"></div>
+    <div class="list" id="reg"></div>
   </div>
 
   <div class="card">
@@ -307,10 +339,20 @@
   </div>
 
   <div class="card only-boss">
+    <div class="h2row"><p class="h2">Calendrier fournisseurs</p><span class="muted">saisi une fois</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">🥬</div><div class="tx"><p class="t1">Pomona</p><p class="t2">commande <b>mar.</b> avant 12 h → livré <b>jeu.</b> · franco 250 €</p></div><div class="rt"><span class="pill warn">mardi : J-3</span></div></div>
+      <div class="item"><div class="ic">🌾</div><div class="tx"><p class="t1">Minoterie Bertel</p><p class="t2">commande <b>lun.</b> → livré <b>mer.</b> · franco 80 €</p></div><div class="rt"><span class="pill info">lundi</span></div></div>
+      <div class="item"><div class="ic">🍺</div><div class="tx"><p class="t1">Boissons (cidre, bière)</p><p class="t2">SMS au commercial <b>jeu.</b> → livré <b>ven.</b> · pas de franco</p></div><div class="rt"><span class="pill n">jeudi</span></div></div>
+      <div class="item"><div class="ic">🥛</div><div class="tx"><p class="t1">Laiterie locale</p><p class="t2">commande <b>lun. et jeu.</b> → livré le lendemain · franco 60 €</p></div><div class="rt"><span class="pill info">lundi</span></div></div>
+    </div>
+  </div>
+
+  <div class="card only-boss">
     <div class="h2row"><p class="h2">Commande suggérée · lundi</p><span class="muted">1 284 €</span></div>
     <p class="muted" style="margin-top:4px">Calculée sur la prévision de la semaine, le stock et les DLC. Le panier est optimisé avec les francos.</p>
     <div class="list">
-      <div class="item"><div class="ic">🥬</div><div class="tx"><p class="t1">Pomona · 14 lignes</p><p class="t2">franco atteint ✓ · livraison mardi</p></div><div class="rt"><p class="v">612 €</p></div></div>
+      <div class="item"><div class="ic">🥬</div><div class="tx"><p class="t1">Pomona · 14 lignes</p><p class="t2">franco 250 € atteint ✓ · à envoyer mardi → livré jeudi</p></div><div class="rt"><p class="v">612 €</p></div></div>
       <div class="item"><div class="ic">🌾</div><div class="tx"><p class="t1">Minoterie Bertel · farine sarrasin</p><p class="t2">2 sacs · moins cher que Pomona (−0,18 €/kg)</p></div><div class="rt"><p class="v">96 €</p></div></div>
       <div class="item"><div class="ic">🍺</div><div class="tx"><p class="t1">Boissons · cidre Sorre, bière Meteor</p><p class="t2">Par SMS au commercial</p></div><div class="rt"><p class="v">576 €</p></div></div>
     </div>
@@ -321,6 +363,20 @@
   <div class="card only-boss">
     <div class="h2row"><p class="h2">Ce que tu achètes le plus</p><span class="muted">12 mois</span></div>
     <div id="top"></div>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Mercuriale</p><span class="muted">tenue à jour par tes factures</span></div>
+    <p class="muted" style="margin-top:4px">Ton meilleur prix payé, le prix négocié et le dernier prix facturé, pour chaque produit important.</p>
+    <div id="merc"></div>
+  </div>
+
+  <div class="card only-boss">
+    <div class="h2row"><p class="h2">Négos proposées</p><span class="pill info">2</span></div>
+    <div class="list">
+      <div class="item"><div class="ic">🧈</div><div class="tx"><p class="t1">Beurre demi-sel</p><p class="t2">+14 % en 4 mois · 18 % de tes achats</p></div><div class="rt"><span class="pill bad">prioritaire</span></div></div>
+      <div class="item"><div class="ic">🥚</div><div class="tx"><p class="t1">Œufs plein air</p><p class="t2">facturé au-dessus du tarif 3 fois sur 5</p></div><div class="rt"><span class="pill warn">à recadrer</span></div></div>
+    </div>
   </div>
 
   <div class="card only-boss">
@@ -372,7 +428,7 @@
       <div class="item"><div class="ic">📘</div><div class="tx"><p class="t1">Intégration Inès</p><p class="t2">Jour 2 / 5 · SOP service</p><div class="bar"><i style="width:40%"></i></div></div></div>
     </div>
   </div>
-  <footer>v2 · prototype · aucune donnée réelle</footer>
+  <footer>v3 · prototype · aucune donnée réelle</footer>
 </section>
 </main>
 
@@ -416,51 +472,110 @@ $$('.role button').forEach(b=>b.addEventListener('click',()=>{
   toast(b.dataset.role==='staff' ? 'Vue Équipe : chiffres financiers masqués' : 'Vue Patron');
 }));
 
-/* ---------- Prépa du jour ---------- */
+/* ---------- Réservations ---------- */
+const RESAS=[['12:00','Martin','4','terrasse 1 · T21','🎂 anniversaire'],['12:15','Le Goff','2','salle · T4','habitué · 6e visite'],['12:30','Bureau Aquitaine','8','salle · T10+T11','facture entreprise'],['12:45','Dupont','3','terrasse 2 · T32','allergie gluten']];
+$('#resas').innerHTML = RESAS.map(r=>`<div class="item"><div class="ic" style="font-size:13px;font-weight:600">${r[0]}</div>
+  <div class="tx"><p class="t1">${r[1]} · ${r[2]} pers.</p><p class="t2">${r[3]} · ${r[4]}</p></div></div>`).join('');
+$('#resaMore').addEventListener('click',()=>toast('Plan de salle et liste complète : à venir dans la v4'));
+
+/* ---------- Tâches du jour par poste (avec fiche de poste) ---------- */
+const TASKS = {
+  'Salle':[['Mise en place des tables (salle + 2 terrasses)','mise-en-place'],['Remplir les vinaigriers et le sel-poivre','pleins'],['Vérifier la carte du jour et les ruptures','carte'],['Ouvrir les parasols','terrasse']],
+  'Crêpier':[['Graisser et chauffer les billigs','billig'],['Sortir les pâtes (bac 1 et 2)','pates'],['Préparer les garnitures du jour','garnitures']],
+  'Cuisine':[['Relevé froid : automatique ✓','haccp'],['Étiqueter les préparations','dlc'],['Nettoyer le plan de travail (fin de prépa)','nettoyage']],
+};
+const FICHES = {
+  'mise-en-place':['Mise en place de la salle','1. Nappes et sets propres, sans tache.','2. Couverts : fourchette à gauche, couteau à droite, cuillère à dessert au-dessus.','3. Une bolée par couvert.','4. Vérifier que chaque table a son numéro.','⏱ 25 min · référent : Loïc'],
+  'billig':['Billigs : démarrage','1. Allumer à 230 °C, 15 min avant.','2. Graisser au tampon, jamais à l\'huile directement.','3. Faire une crêpe test et la jeter.','⏱ 15 min'],
+};
+let curPost='Salle';
+const done = new Set();
+function renderTasks(){
+  $('#posts').innerHTML = Object.keys(TASKS).map(p=>`<button aria-pressed="${p===curPost}" data-p="${p}">${p}</button>`).join('');
+  const L = TASKS[curPost];
+  const n = L.filter((t,i)=>done.has(curPost+i)).length;
+  $('#taskCount').textContent = n + ' / ' + L.length;
+  $('#tasks').innerHTML = L.map((t,i)=>`<div class="item">
+      <button class="chk ${done.has(curPost+i)?'on':''}" data-t="${i}" aria-label="Fait">${done.has(curPost+i)?'✓':''}</button>
+      <div class="tx"><p class="t1 ${done.has(curPost+i)?'struck':''}">${t[0]}</p></div>
+      <button class="link" data-f="${t[1]}">Fiche</button></div>`).join('');
+}
+$('#posts').addEventListener('click',e=>{ const b=e.target.closest('[data-p]'); if(!b) return; curPost=b.dataset.p; renderTasks(); });
+$('#tasks').addEventListener('click',e=>{
+  const c=e.target.closest('[data-t]'); if(c){ const k=curPost+c.dataset.t; done.has(k)?done.delete(k):done.add(k); renderTasks(); return; }
+  const f=e.target.closest('[data-f]'); if(f){ const F=FICHES[f.dataset.f]||['Fiche de poste','Le contenu de cette fiche sera repris des procédures (SOP) du restaurant.'];
+    openSheet(`<h3>📘 ${F[0]}</h3>${F.slice(1).map(l=>`<p style="margin-top:12px">${l}</p>`).join('')}<button class="btn pri full" style="margin-top:24px" id="fOk">J'ai lu</button>`);
+    $('#fOk').addEventListener('click',closeSheet); }
+});
+renderTasks();
+
+/* ---------- Prépa du jour : fait / pas fait ---------- */
 const PREP = [
-  { n:'Pâte sarrasin', u:'L', q:14, s:'Stock 12 L → besoin 26 L' },
-  { n:'Pâte froment', u:'L', q:8, s:'Stock 4 L → besoin 12 L' },
-  { n:'Andouille de Guémené', u:'kg', q:1.5, s:'Stock 1,4 kg → besoin 2,9 kg', step:.5 },
-  { n:'Poulet effiloché', u:'kg', q:2, s:'Décongeler (congél. 1, tiroir 3)', step:.5 },
-  { n:'Caramel beurre salé', u:'L', q:2, s:'Stock 0,5 L → besoin 2,5 L', step:.5 },
-  { n:'Pommes poêlées', u:'kg', q:3, s:'Nouvelle livraison ce matin', step:.5 },
+  { n:'Pâte sarrasin', q:'14 L', s:'Stock 12 L → besoin 26 L' },
+  { n:'Pâte froment', q:'8 L', s:'Stock 4 L → besoin 12 L' },
+  { n:'Andouille de Guémené', q:'1,5 kg', s:'Stock 1,4 kg → besoin 2,9 kg' },
+  { n:'Poulet effiloché', q:'2 kg', s:'Décongeler (congél. 1, tiroir 3)' },
+  { n:'Caramel beurre salé', q:'2 L', s:'Stock 0,5 L → besoin 2,5 L' },
+  { n:'Pommes poêlées', q:'3 kg', s:'Nouvelle livraison ce matin' },
 ];
-const REASONS = ['Il en reste au frigo','Pas à la carte aujourd\'hui','Trop / pas assez prévu','Produit manquant'];
-function fmt(q,u){ return (Number.isInteger(q)?q:q.toLocaleString('fr-FR')) + ' ' + u; }
+const REASONS = ['Il en reste au frigo','Pas à la carte aujourd\'hui','Quantité mal prévue','Produit manquant','Pas eu le temps'];
 function renderPrep(){
-  const live = PREP.filter(p=>!p.skip).length;
-  $('#prepCount').textContent = live + ' / ' + PREP.length;
+  const ok = PREP.filter(p=>p.st==='ok').length, ko = PREP.filter(p=>p.st==='ko').length;
+  $('#prepCount').textContent = `${ok} fait${ok>1?'s':''} · ${ko} non fait${ko>1?'s':''} · ${PREP.length-ok-ko} à faire`;
   $('#prep').innerHTML = PREP.map((p,i)=>`
-    <div class="item ${p.skip?'skip':''}">
-      <div class="tx"><p class="t1">${p.n}</p><p class="t2">${p.s}</p>${p.learn?`<p class="learn">✓ Noté : « ${p.learn} »</p>`:''}</div>
-      ${p.skip ? `<button class="btn sec" data-i="${i}" data-a="undo">Rétablir</button>` : `
-      <div class="step">
-        <button aria-label="Moins" data-i="${i}" data-a="-">−</button>
-        <span class="q">${fmt(p.q,p.u)}</span>
-        <button aria-label="Plus" data-i="${i}" data-a="+">+</button>
-      </div>`}
+    <div class="item ${p.st==='ko'?'skip':''}">
+      <div class="tx"><p class="t1">${p.n} · <b>${p.q}</b></p><p class="t2">${p.s}</p>${p.learn?`<p class="learn">✓ Noté : « ${p.learn} »</p>`:''}</div>
+      ${p.st ? `<div class="rt"><span class="pill ${p.st==='ok'?'ok':'warn'}">${p.st==='ok'?'fait':'non fait'}</span><br><button class="link" data-i="${i}" data-a="undo">annuler</button></div>` : `
+      <div class="step"><button class="ko" aria-label="Pas fait" data-i="${i}" data-a="ko">✕</button><button class="ok" aria-label="Fait" data-i="${i}" data-a="ok">✓</button></div>`}
     </div>`).join('');
 }
 $('#prep').addEventListener('click', e=>{
-  const b=e.target.closest('button'); if(!b) return; const p=PREP[+b.dataset.i], st=p.step||1;
-  if(b.dataset.a==='+') { p.q=+(p.q+st).toFixed(1); p.touched=true; }
-  if(b.dataset.a==='-') { if(p.q-st<=0) return askSkip(+b.dataset.i); p.q=+(p.q-st).toFixed(1); p.touched=true; }
-  if(b.dataset.a==='undo') { p.skip=false; p.learn=null; }
-  renderPrep();
+  const b=e.target.closest('button'); if(!b) return; const i=+b.dataset.i, p=PREP[i];
+  if(b.dataset.a==='ok') { p.st='ok'; renderPrep(); toast('Fait · étiquette DLC prête à imprimer'); }
+  if(b.dataset.a==='ko') askSkip(i);
+  if(b.dataset.a==='undo') { p.st=null; p.learn=null; renderPrep(); }
 });
 function askSkip(i){
   const p=PREP[i];
-  openSheet(`<h3>Pas de ${p.n.toLowerCase()} aujourd'hui ?</h3><p class="muted">Dis-moi pourquoi, je m'en servirai pour les prochaines prévisions.</p>
+  openSheet(`<h3>${p.n} : pas fait ?</h3><p class="muted">Pourquoi ? Je m'en sers pour les prochaines prévisions et commandes.</p>
     <div class="chips">${REASONS.map(r=>`<button data-r="${r}">${r}</button>`).join('')}</div>`);
   $('#sheetBody').querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{
-    p.skip=true; p.learn = b.dataset.r + ' (sam.)'; closeSheet(); renderPrep(); toast('Correction enregistrée. La prévision en tiendra compte.');
+    p.st='ko'; p.learn = b.dataset.r + ' (sam.)'; closeSheet(); renderPrep(); toast('Raison enregistrée. La prévision en tiendra compte.');
   }));
 }
-$('#prepGo').addEventListener('click',()=>{
-  const n=PREP.filter(p=>!p.skip).length, c=PREP.filter(p=>p.touched||p.skip).length;
-  toast(`Prépa validée : ${n} tâches réparties · ${c} correction${c>1?'s':''} apprise${c>1?'s':''}`);
-});
 renderPrep();
+
+/* ---------- Pleins ---------- */
+const PLEINS=[['Bacs à garnitures (frigo crêpier)','Malo'],['Beurre clarifié pour billigs','Malo'],['Sucre, caramel, chocolat au poste dessert','Malo'],['Bolées et pichets propres au bar','Gwen'],['Cidre et bière en fût : niveau','Gwen'],['Papier caisse et rouleaux TPE','Inès']];
+const pdone=new Set([0,3]);
+function renderPleins(){
+  $('#pleinCount').textContent = pdone.size + ' / ' + PLEINS.length;
+  $('#pleins').innerHTML = PLEINS.map((p,i)=>`<div class="item"><button class="chk ${pdone.has(i)?'on':''}" data-pl="${i}" aria-label="Fait">${pdone.has(i)?'✓':''}</button>
+    <div class="tx"><p class="t1 ${pdone.has(i)?'struck':''}">${p[0]}</p><p class="t2">${p[1]}</p></div></div>`).join('');
+}
+$('#pleins').addEventListener('click',e=>{ const b=e.target.closest('[data-pl]'); if(!b) return; const i=+b.dataset.pl; pdone.has(i)?pdone.delete(i):pdone.add(i); renderPleins(); });
+renderPleins();
+
+/* ---------- Registre du jour par poste ---------- */
+const REG = {
+  'Cuisine':[['🌡️','Relevés de froid','automatiques · 4 enceintes','ok','OK'],['📦','Contrôle à réception','Pomona · à faire','warn','1'],['🏷️','Étiquettes DLC','9 imprimées','ok','9'],['🧽','Nettoyage cuisine','4 / 6 signées','warn','4/6']],
+  'Crêpier':[['🔥','Billigs : température','230 °C · 08:55','ok','OK'],['🧽','Nettoyage poste crêpes','fin de service','n','à faire'],['🥣','Pâtes : refroidissement','bac 1 : 3 °C en 1 h 40','ok','OK']],
+  'Salle':[['🧽','Nettoyage salle + terrasses','0 / 3','n','à faire'],['🍷','Bar : nettoyage tireuse','hebdo · jeudi','ok','fait'],['⚠️','Allergènes : carte à jour','vérifié 08:30','ok','OK']],
+};
+let regPost='Cuisine';
+function renderReg(){
+  $('#regPosts').innerHTML = Object.keys(REG).map(p=>`<button aria-pressed="${p===regPost}" data-p="${p}">${p}</button>`).join('');
+  $('#reg').innerHTML = REG[regPost].map(r=>`<div class="item"><div class="ic">${r[0]}</div><div class="tx"><p class="t1">${r[1]}</p><p class="t2">${r[2]}</p></div><div class="rt"><span class="pill ${r[3]}">${r[4]}</span></div></div>`).join('');
+}
+$('#regPosts').addEventListener('click',e=>{ const b=e.target.closest('[data-p]'); if(!b) return; regPost=b.dataset.p; renderReg(); });
+renderReg();
+
+/* ---------- Mercuriale ---------- */
+const MERC=[['Beurre demi-sel','€/kg','8,95','8,20 (Transgourmet)','8,40','bad','+6,5 %'],['Œufs plein air','€/u','0,31','0,28 (Pomona)','0,28','bad','+10,7 %'],['Farine sarrasin','€/kg','1,62','1,62 (Bertel)','1,62','ok','au prix'],['Crème 35 %','€/L','4,10','3,95 (Laiterie)','4,10','ok','au prix']];
+$('#merc').innerHTML = `<div class="list">${MERC.map(m=>`<div class="item"><div class="tx"><p class="t1">${m[0]}</p>
+  <p class="t2">dernier facturé <b>${m[2]} ${m[1]}</b> · négocié ${m[4]} · meilleur vu ${m[3]}</p></div>
+  <div class="rt"><span class="pill ${m[5]}">${m[6]}</span></div></div>`).join('')}</div>
+  <p class="muted" style="margin-top:8px">Mise à jour automatique à chaque facture. Un prix facturé au-dessus du prix négocié déclenche une demande d'avoir.</p>`;
 
 /* ---------- Semaine ---------- */
 const WEEK=[['sam','☀️',112,'r'],['dim','—',0],['lun','—',0],['mar','⛅',38],['mer','🌧️',41],['jeu','⛅',52],['ven','☀️',94]];
