@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Bilan permanent</title>
+<style>
+  :root {
+    --n0:#ffffff; --n50:#f7f7f8; --n100:#efeff1; --n200:#e3e3e7; --n300:#c4c4cc;
+    --n500:#6b6b76; --n700:#3f3f48; --n900:#1c1c22; --n950:#111115;
+    --accent:#2b59c3; --accent-subtle:#e8eefb;
+    --success:#157a3c; --success-subtle:#e3f5e9;
+    --warning:#a55a07; --warning-subtle:#fdf1dc;
+    --danger:#b42323; --danger-subtle:#fbe5e5;
+    --e1: 0 1px 2px rgba(17,17,21,.06), 0 2px 8px rgba(17,17,21,.04);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { -webkit-text-size-adjust:100%; }
+  body { min-height:100dvh; background:var(--n50); color:var(--n900);
+         font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+         font-variant-numeric:tabular-nums;
+         padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 48px); }
+  main { max-width:520px; margin:0 auto; display:grid; gap:24px; }
+
+  header .eyebrow { font-size:14px; line-height:20px; color:var(--n500); }
+  header h1 { font-size:30px; line-height:36px; font-weight:600; letter-spacing:-.02em; color:var(--n950); }
+  .demo { display:inline-flex; gap:4px; align-items:center; margin-top:8px; padding:4px 8px; border-radius:9999px;
+          background:var(--warning-subtle); color:var(--warning); font-size:12px; line-height:16px; font-weight:500; }
+
+  .card { background:var(--n0); border-radius:16px; box-shadow:var(--e1); padding:16px; }
+  .card h2 { font-size:14px; line-height:20px; font-weight:500; color:var(--n500);
+             text-transform:uppercase; letter-spacing:.05em; }
+  .stack-2 > * + * { margin-top:8px; }
+
+  /* Hero */
+  .hero .big { font-size:48px; line-height:52px; font-weight:700; letter-spacing:-.02em; color:var(--n950); margin-top:8px; }
+  .hero .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .pill { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:9999px;
+          font-size:14px; line-height:20px; font-weight:500; }
+  .pill.up { background:var(--success-subtle); color:var(--success); }
+  .pill.down { background:var(--danger-subtle); color:var(--danger); }
+  .pill.flat { background:var(--n100); color:var(--n700); }
+  .muted { color:var(--n500); font-size:14px; line-height:20px; }
+  details { margin-top:16px; }
+  summary { cursor:pointer; min-height:44px; display:flex; align-items:center; color:var(--accent);
+            font-size:14px; font-weight:500; list-style:none; }
+  summary::-webkit-details-marker { display:none; }
+  details p { font-size:14px; line-height:20px; color:var(--n700); }
+
+  /* KPI grid */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  .kpi .label { font-size:14px; line-height:20px; color:var(--n500); }
+  .kpi .value { font-size:24px; line-height:32px; font-weight:600; color:var(--n950); }
+  .kpi .delta { font-size:14px; line-height:20px; font-weight:500; }
+  .pos { color:var(--success); } .neg { color:var(--danger); }
+
+  .callout { margin-top:16px; padding:12px; border-radius:12px; font-size:14px; line-height:20px; }
+  .callout.ok { background:var(--success-subtle); color:var(--success); }
+  .callout.warn { background:var(--warning-subtle); color:var(--warning); }
+  .callout.bad { background:var(--danger-subtle); color:var(--danger); }
+  .callout strong { font-weight:600; }
+
+  /* Ratios */
+  .ratio { margin-top:16px; }
+  .ratio .row { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .ratio .name { font-weight:500; }
+  .ratio .val { font-weight:600; }
+  .bar { position:relative; height:8px; border-radius:9999px; background:var(--n100); margin-top:8px; overflow:hidden; }
+  .bar .band { position:absolute; top:0; bottom:0; background:var(--success-subtle); }
+  .bar .fill { position:absolute; top:0; bottom:0; width:4px; border-radius:9999px; background:var(--n900);
+               transform:translateX(-2px); }
+  .ratio .note { margin-top:4px; }
+
+  /* Chart */
+  svg { display:block; width:100%; height:auto; margin-top:16px; }
+  .legend { display:flex; flex-wrap:wrap; gap:16px; margin-top:8px; font-size:14px; color:var(--n500); }
+  .legend i { display:inline-block; width:16px; height:3px; border-radius:2px; vertical-align:middle; margin-right:4px; }
+
+  /* Simulator */
+  .field { margin-top:16px; }
+  .field label { display:flex; justify-content:space-between; font-size:14px; line-height:20px; font-weight:500; color:var(--n700); }
+  .field label output { color:var(--n950); font-weight:600; }
+  input[type=range] { width:100%; height:44px; accent-color:var(--accent); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  input[type=number] { width:100%; min-height:44px; margin-top:8px; padding:8px 12px; border-radius:8px;
+                       border:1px solid var(--n200); background:var(--n0); color:var(--n950);
+                       font:inherit; font-weight:500; }
+  input[type=number]:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .seg { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-top:8px; padding:4px;
+         background:var(--n100); border-radius:12px; }
+  .seg button { min-height:44px; border:0; border-radius:8px; background:transparent; color:var(--n700);
+                font:inherit; font-size:14px; font-weight:500; cursor:pointer;
+                transition:background-color .15s ease-out, color .15s ease-out; }
+  .seg button[aria-pressed=true] { background:var(--n0); color:var(--n950); box-shadow:var(--e1); }
+  .seg button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .seg button:active { transform:scale(.97); }
+  .result { margin-top:16px; display:grid; gap:8px; }
+  .result .line { display:flex; justify-content:space-between; gap:8px; font-size:14px; line-height:20px; }
+  .result .line span:last-child { font-weight:600; color:var(--n950); }
+
+  /* Sources */
+  .src { display:flex; gap:12px; align-items:flex-start; margin-top:16px; }
+  .src .dot { flex:none; width:8px; height:8px; border-radius:9999px; margin-top:8px; }
+  .src .t { font-weight:500; }
+  footer { text-align:center; color:var(--n500); font-size:12px; line-height:16px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow" id="today"></p>
+    <h1>Bilan permanent</h1>
+    <span class="demo">● Données de démonstration — Bistrot fictif</span>
+  </header>
+
+  <section class="card hero" aria-labelledby="h-ebe">
+    <h2 id="h-ebe">EBE prévisionnel 2026</h2>
+    <p class="big" id="ebeProj"></p>
+    <p class="muted" id="ebeRange"></p>
+    <div class="meta" id="ebeMeta"></div>
+    <div class="callout" id="ebeCallout"></div>
+    <details>
+      <summary>D'où vient ce chiffre ?</summary>
+      <p id="ebeWhy"></p>
+    </details>
+  </section>
+
+  <section class="card" aria-labelledby="h-day">
+    <h2 id="h-day">Hier</h2>
+    <div class="grid2">
+      <div class="kpi"><p class="label">Chiffre d'affaires</p><p class="value" id="dayCa"></p><p class="delta" id="dayCaD"></p></div>
+      <div class="kpi"><p class="label">Résultat de la journée</p><p class="value" id="dayRes"></p><p class="delta muted" id="dayResD"></p></div>
+    </div>
+    <div class="grid2">
+      <div class="kpi"><p class="label">CA octobre à date</p><p class="value" id="mtdCa"></p><p class="delta" id="mtdD"></p></div>
+      <div class="kpi"><p class="label">EBE 2026 à date</p><p class="value" id="ytdEbe"></p><p class="delta" id="ytdEbeD"></p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-chart">
+    <h2 id="h-chart">EBE cumulé vs 2025</h2>
+    <div id="chart"></div>
+    <div class="legend">
+      <span><i style="background:var(--n300)"></i>2025</span>
+      <span><i style="background:var(--accent)"></i>2026 réel</span>
+      <span><i style="background:repeating-linear-gradient(90deg,var(--accent) 0 4px,transparent 4px 7px)"></i>Projection</span>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-ratios">
+    <h2 id="h-ratios">Tes ratios 2026</h2>
+    <div id="ratios"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-sim">
+    <h2 id="h-sim">Je peux embaucher un temps partiel ?</h2>
+    <div class="field">
+      <label for="hours">Heures par semaine <output id="hoursOut"></output></label>
+      <input type="range" id="hours" min="5" max="35" step="1" value="15">
+    </div>
+    <div class="row2">
+      <div class="field"><label for="rate">Taux horaire brut</label><input type="number" id="rate" inputmode="decimal" step="0.1" value="12.5"></div>
+      <div class="field"><label for="coef">Coef. charges</label><input type="number" id="coef" inputmode="decimal" step="0.05" value="1.3"></div>
+    </div>
+    <div class="field">
+      <label>À partir de</label>
+      <div class="seg" role="group" aria-label="Date de début">
+        <button type="button" data-start="now" aria-pressed="true">Maintenant</button>
+        <button type="button" data-start="nov" aria-pressed="false">1er nov.</button>
+        <button type="button" data-start="jan" aria-pressed="false">1er janv.</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="seuil">Mon seuil de confort (EBE / CA) <output id="seuilOut"></output></label>
+      <input type="range" id="seuil" min="3" max="18" step="0.5" value="8">
+    </div>
+    <div class="result" id="simRes"></div>
+    <div class="callout" id="simVerdict"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-src">
+    <h2 id="h-src">D'où viennent les données</h2>
+    <div class="src"><span class="dot" style="background:var(--success)"></span><div><p class="t">Caisse — automatique</p><p class="muted">CA, couverts, ticket moyen, chaque nuit. Rien à saisir.</p></div></div>
+    <div class="src"><span class="dot" style="background:var(--warning)"></span><div><p class="t">Achats — factures ou banque</p><p class="muted">Le point faible : sans inventaire, le coût matière est une estimation. Un inventaire mensuel le recale.</p></div></div>
+    <div class="src"><span class="dot" style="background:var(--warning)"></span><div><p class="t">Personnel — planning ou paie</p><p class="muted">Les heures planifiées donnent la masse salariale au jour, la paie la corrige en fin de mois.</p></div></div>
+    <div class="src"><span class="dot" style="background:var(--success)"></span><div><p class="t">Charges fixes — saisies une fois</p><p class="muted">Loyer, énergie, assurances, leasing : repris de ton dernier bilan.</p></div></div>
+  </section>
+
+  <footer>v1 · prototype · aucune donnée réelle</footer>
+</main>
+
+<script>
+/* ---------- Données de démo (déterministes) ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R = mulberry32(7);
+const DOW = [0, 0, .78, .86, 1, 1.32, 1.48];              // dim. et lun. fermés
+const MON = [.8,.84,.93,1,1.05,1.1,1.14,.55,1,1.02,.95,1.08]; // août : 2 semaines de fermeture
+const BASE = 2300;                                         // CA d'un jour "moyen"
+const CFG = {
+  2025: { growth:1.00, mat:.290, pers:18500, ext:11300, tax:.015 },
+  2026: { growth:1.04, mat:.305, pers:19400, ext:11700, tax:.015 },
+};
+const TODAY = new Date(2026, 9, 17);
+
+function genYear(y){
+  const out = []; const d = new Date(y, 0, 1);
+  while (d.getFullYear() === y) {
+    const f = DOW[d.getDay()] * MON[d.getMonth()];
+    out.push({ date:new Date(d), ca: f ? BASE * f * CFG[y].growth * (0.88 + R()*0.24) : 0 });
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+const Y25 = genYear(2025);
+const Y26full = genYear(2026);
+const n = Y26full.findIndex(x => x.date >= TODAY);         // jours écoulés (jusqu'à hier inclus)
+const Y26 = Y26full.slice(0, n);
+
+/* ---------- Moteur de calcul ---------- */
+const sum = a => a.reduce((s, x) => s + x.ca, 0);
+const fixed = y => (CFG[y].pers + CFG[y].ext) * 12;
+const vr = y => CFG[y].mat + CFG[y].tax;                   // part variable du CA
+
+const ca25 = sum(Y25), ebe25 = ca25 * (1 - vr(2025)) - fixed(2025);
+const ytd26 = sum(Y26), ytd25 = sum(Y25.slice(0, n));
+const growth = ytd26 / ytd25;
+const rest25 = sum(Y25.slice(n));
+const ca26 = ytd26 + rest25 * growth;
+const ebe26 = ca26 * (1 - vr(2026)) - fixed(2026);
+const spread = rest25 * 0.03 * (1 - vr(2026));             // ±3 pts de tendance sur la fin d'année
+const ebeYtd26 = ytd26 * (1 - vr(2026)) - fixed(2026) * n / 365;
+const ebeYtd25 = ytd25 * (1 - vr(2025)) - fixed(2025) * n / 365;
+const openDays = Y26full.filter(x => DOW[x.date.getDay()] > 0).length;
+const fixedPerOpenDay = fixed(2026) / openDays;
+const breakEvenDay = fixedPerOpenDay / (1 - vr(2026));
+
+/* ---------- Formatage ---------- */
+const eur = v => Math.round(v).toLocaleString('fr-FR') + ' €';
+const keur = v => (v / 1000).toLocaleString('fr-FR', { maximumFractionDigits:1 }) + ' k€';
+const pc = (v, d=1) => (v * 100).toLocaleString('fr-FR', { minimumFractionDigits:d, maximumFractionDigits:d }) + ' %';
+const sgn = v => (v >= 0 ? '+' : '−') + Math.abs(v).toLocaleString('fr-FR', { maximumFractionDigits:1 });
+const $ = id => document.getElementById(id);
+
+/* ---------- Rendu : en-tête + hero ---------- */
+$('today').textContent = TODAY.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+  + ' · mis à jour cette nuit';
+$('ebeProj').textContent = keur(ebe26);
+$('ebeRange').textContent = `Fourchette ${keur(ebe26 - spread)} – ${keur(ebe26 + spread)} · ${pc(ebe26 / ca26)} du CA`;
+const dEbe = ebe26 - ebe25, dCa = ca26 / ca25 - 1;
+$('ebeMeta').innerHTML =
+  `<span class="pill ${dEbe >= 0 ? 'up' : 'down'}">${dEbe >= 0 ? '▲' : '▼'} ${sgn(dEbe / 1000)} k€ vs 2025</span>` +
+  `<span class="pill ${dCa >= 0 ? 'up' : 'down'}">CA ${dCa >= 0 ? '▲' : '▼'} ${sgn(dCa * 100)} %</span>`;
+const matDrift = CFG[2026].mat - CFG[2025].mat;
+const call = $('ebeCallout');
+if (dCa > 0 && dEbe < 0) {
+  call.className = 'callout warn';
+  call.innerHTML = `<strong>Ton CA monte mais ton EBE baisse.</strong> Cause principale : le coût matière a pris ${sgn(matDrift * 100)} pt, `
+    + `soit ${keur(matDrift * ca26)} sur l'année. C'est le premier levier.`;
+} else {
+  call.className = 'callout ok';
+  call.innerHTML = `<strong>Tu es en avance sur 2025.</strong>`;
+}
+$('ebeWhy').textContent = `Réel du 1er janvier à hier (${keur(ebeYtd26)}), puis la fin d'année projetée sur ton 2025 `
+  + `corrigé de ta tendance 2026 (${sgn((growth - 1) * 100)} % de CA). Charges fixes au réel, coût matière au ratio constaté depuis janvier. `
+  + `La fourchette correspond à ±3 points de tendance sur les mois restants.`;
+
+/* ---------- Hier / à date ---------- */
+const yday = Y26[n - 1];
+const ydayN1 = Y25.find((d, i) => i >= n - 4 && d.date.getDay() === yday.date.getDay()); // même jour de semaine, 52 sem. avant
+const dayRes = yday.ca * (1 - vr(2026)) - fixedPerOpenDay;
+$('dayCa').textContent = eur(yday.ca);
+const dDay = yday.ca / ydayN1.ca - 1;
+$('dayCaD').innerHTML = `<span class="${dDay >= 0 ? 'pos' : 'neg'}">${sgn(dDay * 100)} %</span> <span class="muted">vs même jour 2025</span>`;
+$('dayRes').textContent = (dayRes >= 0 ? '+' : '') + eur(dayRes);
+$('dayRes').className = 'value ' + (dayRes >= 0 ? 'pos' : 'neg');
+$('dayResD').textContent = `Point mort : ${eur(breakEvenDay)} de CA par jour ouvert`;
+const m = TODAY.getMonth();
+const mtd26 = Y26.filter(x => x.date.getMonth() === m), mtd25 = Y25.filter((x, i) => i < n && x.date.getMonth() === m);
+const dM = sum(mtd26) / sum(mtd25) - 1;
+$('mtdCa').textContent = keur(sum(mtd26));
+$('mtdD').innerHTML = `<span class="${dM >= 0 ? 'pos' : 'neg'}">${sgn(dM * 100)} %</span> <span class="muted">vs oct. 2025</span>`;
+$('ytdEbe').textContent = keur(ebeYtd26);
+const dY = ebeYtd26 - ebeYtd25;
+$('ytdEbeD').innerHTML = `<span class="${dY >= 0 ? 'pos' : 'neg'}">${sgn(dY / 1000)} k€</span> <span class="muted">vs 2025 à date</span>`;
+
+/* ---------- Graphique EBE cumulé ---------- */
+(function chart(){
+  const W = 340, H = 170, P = { l:4, r:4, t:12, b:22 };
+  const cum = (days, y, g=1) => { let s = 0; return days.map(d => s += d.ca * g * (1 - vr(y)) - fixed(y) / 365); };
+  const c25 = cum(Y25, 2025);
+  const c26 = cum(Y26, 2026);
+  const last = c26[c26.length - 1];
+  let s = last; const proj = [last, ...Y25.slice(n).map(d => s += d.ca * growth * (1 - vr(2026)) - fixed(2026) / 365)];
+  const all = [...c25, ...c26, ...proj, 0];
+  const lo = Math.min(...all), hi = Math.max(...all);
+  const x = i => P.l + i / 364 * (W - P.l - P.r);
+  const y = v => P.t + (hi - v) / (hi - lo) * (H - P.t - P.b);
+  const path = (arr, off=0) => arr.map((v, i) => (i ? 'L' : 'M') + x(i + off).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
+  const ticks = [[0,'janv.'],[90,'avr.'],[181,'juil.'],[273,'oct.']]
+    .map(([d, t]) => `<text x="${x(d)}" y="${H - 6}" font-size="11" fill="#6b6b76">${t}</text>`).join('');
+  $('chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="EBE cumulé 2026 comparé à 2025">
+    <line x1="${P.l}" x2="${W - P.r}" y1="${y(0)}" y2="${y(0)}" stroke="#e3e3e7" stroke-width="1"/>
+    <path d="${path(c25)}" fill="none" stroke="#c4c4cc" stroke-width="2" stroke-linejoin="round"/>
+    <path d="${path(proj, n - 1)}" fill="none" stroke="#2b59c3" stroke-width="2" stroke-dasharray="4 3" stroke-linejoin="round"/>
+    <path d="${path(c26)}" fill="none" stroke="#2b59c3" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="${x(n - 1)}" cy="${y(last)}" r="4" fill="#2b59c3" stroke="#fff" stroke-width="2"/>
+    ${ticks}
+  </svg>`;
+})();
+
+/* ---------- Ratios ---------- */
+(function ratios(){
+  const rows = [
+    { name:'Coût matière', v:CFG[2026].mat, prev:CFG[2025].mat, band:[.26,.30], max:.45, lowerIsBetter:true },
+    { name:'Masse salariale', v:CFG[2026].pers * 12 / ca26, prev:CFG[2025].pers * 12 / ca25, band:[.30,.38], max:.5, lowerIsBetter:true },
+    { name:'Charges externes', v:CFG[2026].ext * 12 / ca26, prev:CFG[2025].ext * 12 / ca25, band:[.15,.22], max:.35, lowerIsBetter:true },
+    { name:'EBE', v:ebe26 / ca26, prev:ebe25 / ca25, band:[.10,.20], max:.25, lowerIsBetter:false },
+  ];
+  $('ratios').innerHTML = rows.map(r => {
+    const d = (r.v - r.prev) * 100;
+    const good = r.lowerIsBetter ? d <= 0 : d >= 0;
+    const inBand = r.v >= r.band[0] && r.v <= r.band[1];
+    return `<div class="ratio">
+      <div class="row"><span class="name">${r.name}</span><span class="val">${pc(r.v)}</span></div>
+      <div class="bar"><span class="band" style="left:${r.band[0] / r.max * 100}%;right:${100 - r.band[1] / r.max * 100}%"></span>
+        <span class="fill" style="left:${Math.min(r.v / r.max, 1) * 100}%"></span></div>
+      <p class="note muted"><span class="${good ? 'pos' : 'neg'}">${sgn(d)} pt</span> vs 2025 · repère ${pc(r.band[0], 0)}–${pc(r.band[1], 0)}${inBand ? '' : ' · <strong>hors repère</strong>'}</p>
+    </div>`;
+  }).join('');
+})();
+
+/* ---------- Simulateur d'embauche ---------- */
+let start = 'now';
+function sim(){
+  const h = +$('hours').value, rate = +$('rate').value || 0, coef = +$('coef').value || 1, seuil = +$('seuil').value / 100;
+  $('hoursOut').textContent = h + ' h';
+  $('seuilOut').textContent = pc(seuil);
+  const monthly = h * 52 / 12 * rate * coef;
+  const annual = monthly * 12;
+  const frac = start === 'now' ? (365 - n) / 365 : start === 'nov' ? 2 / 12 : 0;
+  const after26 = ebe26 - annual * frac;
+  const afterFull = ebe26 - annual;
+  const pctFull = afterFull / ca26;
+  const caPerDay = annual / openDays / (1 - vr(2026));
+  const matPts = annual / ca26 * 100;
+  $('simRes').innerHTML = `
+    <div class="line"><span class="muted">Coût chargé</span><span>${eur(monthly)} / mois</span></div>
+    <div class="line"><span class="muted">EBE 2026 après embauche</span><span>${keur(after26)}</span></div>
+    <div class="line"><span class="muted">EBE sur une année pleine</span><span>${keur(afterFull)} · ${pc(pctFull)}</span></div>
+    <div class="line"><span class="muted">Pour l'autofinancer</span><span>+${eur(caPerDay)} de CA / jour</span></div>`;
+  const v = $('simVerdict');
+  const margin = pctFull - seuil;
+  if (margin >= 0.01) {
+    v.className = 'callout ok';
+    v.innerHTML = `<strong>Oui, ça passe.</strong> Ton EBE reste à ${pc(pctFull)}, au-dessus de ton seuil de ${pc(seuil)}.`;
+  } else if (margin >= 0) {
+    v.className = 'callout warn';
+    v.innerHTML = `<strong>Oui, mais juste.</strong> ${pc(pctFull)} d'EBE, à ${sgn(margin * 100)} pt de ton seuil. `
+      + `Un mois creux et tu passes dessous.`;
+  } else {
+    v.className = 'callout bad';
+    v.innerHTML = `<strong>Pas en l'état.</strong> Ton EBE tomberait à ${pc(pctFull)}, sous ton seuil de ${pc(seuil)}. `
+      + `Il faudrait +${eur(caPerDay)} de CA par jour ouvert, ou ${sgn(-matPts)} pt de coût matière.`;
+  }
+}
+['hours','rate','coef','seuil'].forEach(id => $(id).addEventListener('input', sim));
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  start = b.dataset.start;
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  sim();
+}));
+sim();
+</script>
+</body>
+</html>
